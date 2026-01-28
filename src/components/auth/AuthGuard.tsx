@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { loadUser, setLoading } from '@/store/slices/authSlice';
+import { setLoading } from '@/store/slices/authSlice';
 import { CircularProgress, Box } from '@mui/material';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -11,16 +11,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const dispatch = useAppDispatch();
     const { isAuthenticated, isLoading, user } = useAppSelector((state) => state.auth);
 
-    useEffect(() => {
-        // Attempt to load user from token on mount
-        const token = localStorage.getItem('token');
-        if (token && !user) {
-            dispatch(loadUser());
-        } else if (!token && isLoading) {
-            // No token found, stop loading so we can redirect
-            dispatch(setLoading(false));
-        }
-    }, [dispatch, user, isLoading]);
+    // AuthInitializer in providers.tsx now handles the initial loadUser call.
+    // We just need to wait for loading to finish and then check authentication.
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {

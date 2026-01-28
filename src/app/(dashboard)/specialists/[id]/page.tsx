@@ -1,62 +1,91 @@
 'use client';
 
-import { Box, Typography, Button } from '@mui/material';
-import { useOneSpecialist, useUpdateSpecialist } from '@/lib/queries/specialists';
-import SpecialistForm from '@/components/specialists/SpecialistForm';
-import { useRouter } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
-import { CreateSpecialistData } from '@/lib/types';
 import { use } from 'react';
+import { Box, Typography, Button, Container, Divider, Grid } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import { useOneSpecialist } from '@/lib/queries/specialists';
+import ServiceGallery from '@/components/specialists/ServiceGallery';
+import PricingCard from '@/components/specialists/PricingCard';
+import ServiceProviderProfile from '@/components/specialists/ServiceProviderProfile';
 
-export default function EditSpecialistPage({ params }: { params: Promise<{ id: string }> }) {
+export default function SpecialistDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
-    const { data: specialist, isLoading: isLoadingData } = useOneSpecialist(id);
-    const { mutate: updateSpecialist, isPending: isUpdating } = useUpdateSpecialist();
+    const { data: specialist, isLoading } = useOneSpecialist(id);
 
-    const handleSubmit = (data: CreateSpecialistData) => {
-        updateSpecialist({ id, data }, {
-            onSuccess: () => {
-                router.push('/specialists');
-            },
-            onError: (error) => {
-                console.error("Failed to update specialist:", error);
-            }
-        });
-    };
-
-    if (isLoadingData) return <Typography>Loading...</Typography>;
+    if (isLoading) return <Typography>Loading...</Typography>;
     if (!specialist) return <Typography>Specialist not found</Typography>;
 
-    // Map existing data to form format
-    const initialData: CreateSpecialistData = {
-        title: specialist.title,
-        description: specialist.description,
-        basePrice: specialist.basePrice || specialist.price, // fallback
-        durationDays: specialist.durationDays || 1,
-        slug: specialist.slug,
-    };
-
     return (
-        <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-            <Button
-                startIcon={<ChevronLeft />}
-                onClick={() => router.back()}
-                sx={{ mb: 3, textTransform: 'none', color: 'text.secondary' }}
-            >
-                Back to Specialists
-            </Button>
+        <Container maxWidth="xl" sx={{ py: 4 }}>
+            <Grid container spacing={6}>
+                <Grid size={{ xs: 12, md: 7 }}>
+                    <Typography variant="h4" fontWeight={700} sx={{ mb: 4 }}>
+                        {specialist.title}
+                    </Typography>
+                    <ServiceGallery />
 
-            <Typography variant="h5" fontWeight={700} mb={3}>
-                Edit Specialist
-            </Typography>
+                    <Box sx={{ my: 4 }}>
+                        <Typography variant="h6" fontWeight={700} gutterBottom>
+                            Description
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
+                            {specialist.description || "Describe your service here"}
+                        </Typography>
+                    </Box>
 
-            <SpecialistForm
-                initialData={initialData}
-                onSubmit={handleSubmit}
-                isLoading={isUpdating}
-                isEdit
-            />
-        </Box>
+                    <Divider sx={{ my: 4 }} />
+
+                    <Box sx={{ my: 4 }}>
+                        <Typography variant="h6" fontWeight={700} gutterBottom>
+                            Additional Offerings
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Enhance your service by adding additional offerings
+                        </Typography>
+                        {/* Placeholder for additional offerings list if any */}
+                    </Box>
+
+                    <Divider sx={{ my: 4 }} />
+
+                    <ServiceProviderProfile />
+                </Grid>
+
+                {/* Right Column - Pricing */}
+                <Grid size={{ xs: 12, md: 5 }}>
+                    <Box sx={{ position: 'sticky', top: 24 }}>
+                        {/* Action Buttons */}
+                        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    bgcolor: '#000', // Dark blue/blackish from image
+                                    textTransform: 'none',
+                                    minWidth: 100
+                                }}
+                                onClick={() => router.push(`/specialists/${id}/edit`)}
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    bgcolor: '#0f2c59', // Brighter blue
+                                    textTransform: 'none',
+                                    minWidth: 100
+                                }}
+                            >
+                                Publish
+                            </Button>
+                        </Box>
+
+                        <PricingCard
+                            basePrice={specialist.basePrice || specialist.price}
+                            currency={specialist.currency}
+                        />
+                    </Box>
+                </Grid>
+            </Grid>
+        </Container >
     );
 }
