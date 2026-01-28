@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react'; // Boundary
+import { Suspense, useState, useEffect } from 'react'; // Boundary
 import { Box, Typography, Button, Tabs, Tab, TextField, InputAdornment } from '@mui/material';
 import { Plus, Download, Search } from 'lucide-react';
 import Link from 'next/link';
@@ -12,8 +12,16 @@ import SpecialistTable from '@/components/specialists/SpecialistTable';
 
 export default function SpecialistsPage() {
     const dispatch = useAppDispatch();
+    const [page, setPage] = useState(1);
     const { status, search } = useAppSelector((state) => state.specialists);
-    const { data: specialists, isLoading } = useSpecialists(status, search);
+    // Reset page when search or status changes
+    useEffect(() => {
+        setPage(1);
+    }, [status, search]);
+
+    const { data, isLoading } = useSpecialists(status, search, page);
+    const specialists = data?.items || [];
+    const pagination = data?.pagination;
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: 'All' | 'Drafts' | 'Published') => {
         dispatch(setFilterStatus(newValue));
@@ -93,7 +101,12 @@ export default function SpecialistsPage() {
                     </Box>
                 </Box>
 
-                <SpecialistTable data={specialists || []} isLoading={isLoading} />
+                <SpecialistTable
+                    data={specialists}
+                    isLoading={isLoading}
+                    pagination={pagination}
+                    onPageChange={setPage}
+                />
             </Box>
         </Box>
     );

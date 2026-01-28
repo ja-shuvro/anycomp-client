@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Anycomp Specialist Board",
   description: "Company Registration and Management Platform",
+  icons: {
+    icon: '/image.png',
+  },
 };
 
 export default function RootLayout({

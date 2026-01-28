@@ -1,19 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ServiceOffering } from '@/lib/types';
+import api from '@/lib/api';
 
-// Mock Data
-const MOCK_SERVICE_OFFERINGS: ServiceOffering[] = [
-    { id: '1', name: 'Incorporation (Sdn Bhd)', description: 'Full incoporation package', basePrice: 1500, isActive: true },
-    { id: '2', name: 'Annual Return Filing', description: 'Yearly filing service', basePrice: 500, isActive: true },
-    { id: '3', name: 'Strike Off', description: 'Company closing service', basePrice: 800, isActive: true },
-];
-
-export const useServiceOfferings = () => {
+export const useServiceOfferings = (page: number = 1, limit: number = 10) => {
     return useQuery({
-        queryKey: ['service-offerings'],
+        queryKey: ['service-offerings', page, limit],
         queryFn: async () => {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            return MOCK_SERVICE_OFFERINGS;
+            const { data } = await api.get(`/service-offerings?page=${page}&limit=${limit}`);
+            return data.data; // Returns { items: [], pagination: {} }
         },
     });
 };
@@ -22,9 +16,10 @@ export const useServiceOffering = (id: string) => {
     return useQuery({
         queryKey: ['service-offerings', id],
         queryFn: async () => {
-            await new Promise(resolve => setTimeout(resolve, 500));
-            return MOCK_SERVICE_OFFERINGS.find(s => s.id === id);
-        }
+            const { data } = await api.get(`/service-offerings/${id}`);
+            return data.data;
+        },
+        enabled: !!id,
     });
 };
 
@@ -32,8 +27,8 @@ export const useCreateServiceOffering = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: Omit<ServiceOffering, 'id'>) => {
-            console.log('Creating Offering:', data);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await api.post('/service-offerings', data);
+            return response.data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['service-offerings'] });
@@ -45,11 +40,12 @@ export const useUpdateServiceOffering = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async ({ id, data }: { id: string; data: Partial<ServiceOffering> }) => {
-            console.log('Updating Offering:', id, data);
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await api.patch(`/service-offerings/${id}`, data);
+            return response.data;
         },
-        onSuccess: () => {
+        onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['service-offerings'] });
+            queryClient.invalidateQueries({ queryKey: ['service-offerings', variables.id] });
         }
     });
 }

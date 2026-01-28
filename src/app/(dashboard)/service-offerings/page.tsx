@@ -4,9 +4,16 @@ import { Box, Typography, Button, Paper, Table, TableBody, TableCell, TableConta
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useServiceOfferings } from '@/lib/queries/service-offerings';
+import { ServiceOffering } from '@/lib/types';
+import { useState } from 'react';
+import Pagination from '@/components/common/Pagination';
 
 export default function ServiceOfferingsPage() {
-    const { data: offerings, isLoading } = useServiceOfferings();
+    const [page, setPage] = useState(1);
+    const { data, isLoading } = useServiceOfferings(page);
+
+    const offerings = data?.items || [];
+    const pagination = data?.pagination;
 
     if (isLoading) return <Typography>Loading...</Typography>;
 
@@ -37,7 +44,7 @@ export default function ServiceOfferingsPage() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {offerings?.map((offering) => (
+                        {offerings?.map((offering: ServiceOffering) => (
                             <TableRow key={offering.id}>
                                 <TableCell width="25%">
                                     <Typography variant="body2" fontWeight={500}>{offering.name}</Typography>
@@ -45,7 +52,7 @@ export default function ServiceOfferingsPage() {
                                 <TableCell width="35%">
                                     <Typography variant="body2" color="text.secondary" noWrap>{offering.description}</Typography>
                                 </TableCell>
-                                <TableCell>RM {offering.basePrice.toLocaleString()}</TableCell>
+                                <TableCell>RM {offering.basePrice ? offering.basePrice.toLocaleString() : '0.00'}</TableCell>
                                 <TableCell>
                                     <Chip
                                         label={offering.isActive ? 'Active' : 'Inactive'}
@@ -72,6 +79,10 @@ export default function ServiceOfferingsPage() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            {pagination && (
+                <Pagination pagination={pagination} onPageChange={setPage} />
+            )}
         </Box>
     );
 }

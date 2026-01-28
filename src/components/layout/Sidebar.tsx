@@ -51,8 +51,15 @@ export default function Sidebar() {
                 zIndex: 1200,
             }}
         >
+            {/* Profile Label */}
+            <Box sx={{ px: 3, pt: 5, pb: 2 }}>
+                <Typography variant="caption" color="text.black" fontSize={14} fontWeight={900} sx={{ textTransform: 'capitalize' }}>
+                    Profile
+                </Typography>
+            </Box>
+
             {/* Profile Section */}
-            <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ p: 3, pt: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar src="/profile-placeholder.jpg" alt="Profile" sx={{ width: 40, height: 40 }} />
                 <Box>
                     <Typography variant="subtitle1" fontWeight={600} fontSize={14} color="text.primary">
@@ -65,6 +72,21 @@ export default function Sidebar() {
             </Box>
 
             {/* Dashboard Label */}
+            {/* <Box sx={{ px: 3, pb: 1, pt: 4, display: 'flex', justifyContent: 'center' }}>
+                <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+                    <Box
+                        component="img"
+                        src="/image.png"
+                        alt="AnyComp Logo"
+                        sx={{
+                            height: 48, // Adjust as needed
+                            maxWidth: '100%',
+                            objectFit: 'contain'
+                        }}
+                    />
+                </Link>
+            </Box> */}
+
             <Box sx={{ px: 3, pb: 1, pt: 2 }}>
                 <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase' }}>
                     Dashboard

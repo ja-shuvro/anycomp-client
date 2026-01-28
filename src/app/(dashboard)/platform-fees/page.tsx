@@ -4,9 +4,17 @@ import { Box, Typography, Button, Paper, Table, TableBody, TableCell, TableConta
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePlatformFees } from '@/lib/queries/platform-fees';
+import { PlatformFee } from '@/lib/types';
+
+import { useState } from 'react';
+import Pagination from '@/components/common/Pagination';
 
 export default function PlatformFeesPage() {
-    const { data: fees, isLoading } = usePlatformFees();
+    const [page, setPage] = useState(1);
+    const { data, isLoading } = usePlatformFees(page);
+
+    const fees = data?.items || [];
+    const pagination = data?.pagination;
 
     if (isLoading) return <Typography>Loading...</Typography>;
 
@@ -37,11 +45,11 @@ export default function PlatformFeesPage() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {fees?.map((fee) => (
+                        {fees?.map((fee: PlatformFee) => (
                             <TableRow key={fee.id}>
                                 <TableCell>{fee.tierName}</TableCell>
                                 <TableCell>{fee.percentage}%</TableCell>
-                                <TableCell>RM {fee.fixedAmount}</TableCell>
+                                <TableCell>RM {fee.fixedAmount ? fee.fixedAmount.toLocaleString() : '0.00'}</TableCell>
                                 <TableCell>
                                     <Chip
                                         label={fee.isActive ? 'Active' : 'Inactive'}
@@ -68,6 +76,10 @@ export default function PlatformFeesPage() {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            {pagination && (
+                <Pagination pagination={pagination} onPageChange={setPage} />
+            )}
         </Box>
     );
 }
