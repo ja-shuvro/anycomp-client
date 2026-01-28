@@ -77,36 +77,6 @@ export default function LoginPage() {
                     }}>
                         <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: 2 }}>ANYCOMP</Typography>
                     </Box>
-
-                    <Box sx={{
-                        bgcolor: '#EAB308', // Yellow-ish card
-                        p: 4,
-                        borderRadius: 2,
-                        maxWidth: 400,
-                        boxShadow: '0px 10px 20px rgba(0,0,0,0.2)'
-                    }}>
-                        <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
-                            Choose your company secretary with confidence
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2 }}>
-                            <Box sx={{ display: 'flex' }}>
-                                {/* Mock Avatars */}
-                                <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#ccc', border: '2px solid white' }} />
-                                <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#999', border: '2px solid white', ml: -1 }} />
-                                <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: '#666', border: '2px solid white', ml: -1 }} />
-                            </Box>
-                            <Typography variant="body2" fontWeight={600}>4.9</Typography>
-                            <Typography variant="caption" color="text.secondary">from over 500+ Company Secretaries</Typography>
-                        </Box>
-                    </Box>
-
-                    {/* Steps Overlay (Bottom Left) */}
-                    <Box sx={{ position: 'absolute', bottom: 40, left: 40, color: 'white' }}>
-                        <Typography variant="body2">Register your company on the platform</Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>Centralize all your corporate files</Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>Digitally eSign any file</Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>Appoint a Company Secretary</Typography>
-                    </Box>
                 </Box>
             </Box>
 
@@ -122,9 +92,6 @@ export default function LoginPage() {
                 <Box sx={{ width: '100%', maxWidth: 400 }}>
                     <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
                         Login
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary" sx={{ mb: 5 }}>
-                        Register and manage your company with ease
                     </Typography>
 
                     {error && (
@@ -187,14 +154,7 @@ export default function LoginPage() {
                             {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
                         </Button>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                            <Typography variant="body2">
-                                No account? <MuiLink href="/register" underline="none">Register here</MuiLink>
-                            </Typography>
-                            <MuiLink href="/forgot-password" underline="none" variant="body2">
-                                Reset Password
-                            </MuiLink>
-                        </Box>
+
                     </Box>
                 </Box>
             </Box>

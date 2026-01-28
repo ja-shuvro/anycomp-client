@@ -17,6 +17,7 @@ import {
 import { MoreVertical } from 'lucide-react';
 import { Specialist, PurchaseStatus, PublishStatus, PaginationMeta } from '@/lib/types';
 import Pagination from '@/components/common/Pagination';
+import { useRouter } from 'next/navigation';
 
 interface SpecialistTableProps {
     data: Specialist[];
@@ -72,6 +73,8 @@ const PublishStatusChip = ({ status }: { status: PublishStatus }) => {
 };
 
 export default function SpecialistTable({ data, isLoading, pagination, onPageChange }: SpecialistTableProps) {
+    const router = useRouter();
+
     if (isLoading) {
         return <Box sx={{ p: 4, textAlign: 'center' }}>Loading...</Box>;
     }
@@ -98,9 +101,15 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                         {data.map((row) => (
                             <TableRow
                                 key={row.id}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { bgcolor: '#F5F5F5' } }}
+                                hover
+                                onClick={() => router.push(`/specialists/${row.id}`)}
+                                sx={{
+                                    '&:last-child td, &:last-child th': { border: 0 },
+                                    cursor: 'pointer',
+                                    '&:hover': { bgcolor: '#F5F5F5' }
+                                }}
                             >
-                                <TableCell padding="checkbox">
+                                <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
                                     <Checkbox size="small" />
                                 </TableCell>
                                 <TableCell component="th" scope="row">
@@ -131,7 +140,7 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                                 <TableCell>
                                     <PublishStatusChip status={row.publishStatus} />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell onClick={(e) => e.stopPropagation()}>
                                     <IconButton size="small">
                                         <MoreVertical size={16} />
                                     </IconButton>
