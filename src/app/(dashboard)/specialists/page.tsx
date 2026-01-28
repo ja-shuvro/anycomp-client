@@ -1,0 +1,100 @@
+'use client';
+
+import { Suspense } from 'react'; // Boundary
+import { Box, Typography, Button, Tabs, Tab, TextField, InputAdornment } from '@mui/material';
+import { Plus, Download, Search } from 'lucide-react';
+import Link from 'next/link';
+
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setFilterStatus, setSearchQuery } from '@/store/slices/specialistsSlice';
+import { useSpecialists } from '@/lib/queries/specialists';
+import SpecialistTable from '@/components/specialists/SpecialistTable';
+
+export default function SpecialistsPage() {
+    const dispatch = useAppDispatch();
+    const { status, search } = useAppSelector((state) => state.specialists);
+    const { data: specialists, isLoading } = useSpecialists(status, search);
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: 'All' | 'Drafts' | 'Published') => {
+        dispatch(setFilterStatus(newValue));
+    };
+
+    return (
+        <Box>
+            <Box sx={{ mb: 4 }}>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Create and publish your services for Client's & Companies
+                </Typography>
+
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                    <Tabs
+                        value={status}
+                        onChange={handleTabChange}
+                        aria-label="specialist tabs"
+                        sx={{
+                            '& .MuiTab-root': {
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                fontSize: 15,
+                                minWidth: 80,
+                            }
+                        }}
+                    >
+                        <Tab label="All" value="All" />
+                        <Tab label="Drafts" value="Drafts" />
+                        <Tab label="Published" value="Published" />
+                    </Tabs>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <TextField
+                        placeholder="Search Services"
+                        size="small"
+                        variant="outlined"
+                        value={search}
+                        onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+                        sx={{
+                            width: 300,
+                            bgcolor: '#F5F5F5',
+                            '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                            '& .MuiOutlinedInput-root': { borderRadius: 2 }
+                        }}
+                    />
+
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Button
+                            variant="contained"
+                            component={Link}
+                            href="/specialists/create"
+                            startIcon={<Plus size={18} />}
+                            sx={{
+                                textTransform: 'none',
+                                bgcolor: '#0f2c59',
+                                borderRadius: 2,
+                                boxShadow: 'none',
+                                '&:hover': { bgcolor: '#0a1e3f' }
+                            }}
+                        >
+                            Create
+                        </Button>
+                        <Button
+                            variant="contained"
+                            startIcon={<Download size={18} />}
+                            sx={{
+                                textTransform: 'none',
+                                bgcolor: '#0f2c59', // Dark color from image
+                                borderRadius: 2,
+                                boxShadow: 'none',
+                                '&:hover': { bgcolor: '#000000' }
+                            }}
+                        >
+                            Export
+                        </Button>
+                    </Box>
+                </Box>
+
+                <SpecialistTable data={specialists || []} isLoading={isLoading} />
+            </Box>
+        </Box>
+    );
+}
