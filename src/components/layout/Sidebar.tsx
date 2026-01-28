@@ -14,10 +14,10 @@ import {
 import { Avatar, Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider } from '@mui/material';
 
 const MENU_ITEMS = [
-    { text: 'Specialists', icon: Briefcase, href: '/specialists' }, // Using Briefcase for "Specialists/Services" context
+    { text: 'Specialists', icon: Briefcase, href: '/specialists' },
     { text: 'Clients', icon: Users, href: '/clients' },
     { text: 'Service Orders', icon: FileText, href: '/orders' },
-    { text: 'eSignature', icon: FileText, href: '/esignature' }, // Placeholder icon
+    { text: 'eSignature', icon: FileText, href: '/esignature' },
     { text: 'Messages', icon: MessageSquare, href: '/messages' },
     { text: 'Invoices & Receipts', icon: Receipt, href: '/invoices' },
 ];

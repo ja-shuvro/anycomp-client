@@ -32,3 +32,28 @@ export interface ServiceOffering {
     basePrice: number;
     isActive: boolean;
 }
+
+export enum UserRole {
+    ADMIN = 'admin',
+    SPECIALIST = 'specialist',
+    CLIENT = 'client'
+}
+
+export interface User {
+    id: string;
+    email: string;
+    role: UserRole;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
+export interface RegisterData {
+    email: string;
+    password: string;
+    role?: UserRole;
+}
