@@ -16,3 +16,19 @@ export interface SpecialistFilter {
     status: 'All' | 'Drafts' | 'Published';
     search: string;
 }
+
+export interface PlatformFee {
+    id: string;
+    tierName: string;
+    percentage: number;
+    fixedAmount: number;
+    isActive: boolean;
+}
+
+export interface ServiceOffering {
+    id: string;
+    name: string;
+    description: string;
+    basePrice: number;
+    isActive: boolean;
+}

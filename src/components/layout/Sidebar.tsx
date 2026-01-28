@@ -22,6 +22,11 @@ const MENU_ITEMS = [
     { text: 'Invoices & Receipts', icon: Receipt, href: '/invoices' },
 ];
 
+const ADMIN_ITEMS = [
+    { text: 'Platform Fees', icon: Settings, href: '/platform-fees' },
+    { text: 'Service Offerings', icon: Briefcase, href: '/service-offerings' },
+];
+
 const BOTTOM_ITEMS = [
     { text: 'Help', icon: HelpCircle, href: '/help' },
     { text: 'Settings', icon: Settings, href: '/settings' },
@@ -80,6 +85,56 @@ export default function Sidebar() {
                                         borderRadius: 2,
                                         '&.Mui-selected': {
                                             bgcolor: '#0f2c59', // Dark blue from image
+                                            color: '#ffffff',
+                                            '&:hover': {
+                                                bgcolor: '#0a1e3f',
+                                            },
+                                            '& .MuiListItemIcon-root': {
+                                                color: '#ffffff',
+                                            },
+                                        },
+                                        '&:hover': {
+                                            bgcolor: 'rgba(0, 0, 0, 0.04)',
+                                        },
+                                    }}
+                                >
+                                    <ListItemIcon sx={{ minWidth: 40, color: isActive ? '#ffffff' : 'text.secondary' }}>
+                                        <item.icon size={20} />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={item.text}
+                                        primaryTypographyProps={{
+                                            fontSize: 14,
+                                            fontWeight: isActive ? 600 : 400,
+                                            color: isActive ? 'inherit' : 'text.primary'
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </Link>
+                        </ListItem>
+                    );
+                })}
+            </List>
+
+            <Box sx={{ px: 3, pb: 1, pt: 2 }}>
+                <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase' }}>
+                    Admin
+                </Typography>
+            </Box>
+
+            <List disablePadding>
+                {ADMIN_ITEMS.map((item) => {
+                    const isActive = pathname.startsWith(item.href);
+                    return (
+                        <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+                            <Link href={item.href} style={{ textDecoration: 'none', width: '100%' }}>
+                                <ListItemButton
+                                    selected={isActive}
+                                    sx={{
+                                        mx: 2,
+                                        borderRadius: 2,
+                                        '&.Mui-selected': {
+                                            bgcolor: '#0f2c59',
                                             color: '#ffffff',
                                             '&:hover': {
                                                 bgcolor: '#0a1e3f',
