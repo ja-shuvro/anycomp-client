@@ -15,7 +15,7 @@ import {
     Typography,
 } from '@mui/material';
 import { MoreVertical } from 'lucide-react';
-import { Specialist, PurchaseStatus, PublishStatus, PaginationMeta } from '@/lib/types';
+import { Specialist, VerificationStatus, PaginationMeta } from '@/lib/types';
 import Pagination from '@/components/common/Pagination';
 import { useRouter } from 'next/navigation';
 
@@ -26,21 +26,24 @@ interface SpecialistTableProps {
     onPageChange?: (page: number) => void;
 }
 
-const ApprovalStatusChip = ({ status }: { status: PurchaseStatus }) => {
+const VerificationStatusChip = ({ status }: { status: VerificationStatus }) => {
     let bgcolor = '#E8F5E9'; // Green default
     let color = '#2E7D32';
+    let label = 'Verified';
 
-    if (status === 'Under Review') {
+    if (status === 'pending') {
         bgcolor = '#E0F7FA'; // Cyan light
         color = '#006064';
-    } else if (status === 'Rejected') {
+        label = 'Pending';
+    } else if (status === 'rejected') {
         bgcolor = '#FFEBEE'; // Red light
         color = '#C62828';
+        label = 'Rejected';
     }
 
     return (
         <Chip
-            label={status}
+            label={label}
             size="small"
             sx={{
                 bgcolor,
@@ -54,14 +57,13 @@ const ApprovalStatusChip = ({ status }: { status: PurchaseStatus }) => {
     );
 };
 
-const PublishStatusChip = ({ status }: { status: PublishStatus }) => {
-    const isPublished = status === 'Published';
+const DraftStatusChip = ({ isDraft }: { isDraft: boolean }) => {
     return (
         <Chip
-            label={isPublished ? 'Published' : 'Not Published'}
+            label={isDraft ? 'Draft' : 'Published'}
             size="small"
             sx={{
-                bgcolor: isPublished ? '#00C853' : '#D50000',
+                bgcolor: isDraft ? '#D50000' : '#00C853',
                 color: '#ffffff',
                 fontWeight: 600,
                 fontSize: '0.75rem',
@@ -90,10 +92,10 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                             </TableCell>
                             <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>SERVICE</TableCell>
                             <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>PRICE</TableCell>
-                            <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>PURCHASES</TableCell>
+                            <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>RATING</TableCell>
                             <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>DURATION</TableCell>
-                            <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>APPROVAL STATUS</TableCell>
-                            <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>PUBLISH STATUS</TableCell>
+                            <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>VERIFICATION STATUS</TableCell>
+                            <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>STATUS</TableCell>
                             <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>ACTION</TableCell>
                         </TableRow>
                     </TableHead>
@@ -125,20 +127,22 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                                 </TableCell>
                                 <TableCell>
                                     <Typography variant="body2" fontWeight={600}>
-                                        {row.currency} {row.price ? row.price.toLocaleString() : '0.00'}
+                                        RM {row.finalPrice ? row.finalPrice.toLocaleString() : row.basePrice.toLocaleString()}
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Typography variant="body2">{row.purchases}</Typography>
+                                    <Typography variant="body2">
+                                        ⭐ {row.averageRating ? Number(row.averageRating).toFixed(1) : '0.0'} ({row.totalNumberOfRatings || 0})
+                                    </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Typography variant="body2">{row.duration}</Typography>
+                                    <Typography variant="body2">{row.durationDays} days</Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <ApprovalStatusChip status={row.approvalStatus} />
+                                    <VerificationStatusChip status={row.verificationStatus} />
                                 </TableCell>
                                 <TableCell>
-                                    <PublishStatusChip status={row.publishStatus} />
+                                    <DraftStatusChip isDraft={row.isDraft} />
                                 </TableCell>
                                 <TableCell onClick={(e) => e.stopPropagation()}>
                                     <IconButton size="small">

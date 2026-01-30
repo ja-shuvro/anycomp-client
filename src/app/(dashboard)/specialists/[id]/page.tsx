@@ -1,9 +1,9 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState } from 'react';
 import { Box, Typography, Button, Container, Divider, Grid } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { useOneSpecialist } from '@/lib/queries/specialists';
+import { useOneSpecialist, usePublishSpecialist } from '@/lib/queries/specialists';
 import ServiceGallery from '@/components/specialists/ServiceGallery';
 import PricingCard from '@/components/specialists/PricingCard';
 import ServiceProviderProfile from '@/components/specialists/ServiceProviderProfile';
@@ -12,6 +12,20 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
     const { id } = use(params);
     const router = useRouter();
     const { data: specialist, isLoading } = useOneSpecialist(id);
+    const { mutate: publishSpecialist, isPending: isPublishing } = usePublishSpecialist();
+
+    const handlePublish = () => {
+        publishSpecialist(id, {
+            onSuccess: () => {
+                // Optionally show a success toast
+                console.log('Specialist published successfully');
+            },
+            onError: (error) => {
+                console.error('Failed to publish specialist:', error);
+                // Optionally show an error toast
+            }
+        });
+    };
 
     if (isLoading) return <Typography>Loading...</Typography>;
     if (!specialist) return <Typography>Specialist not found</Typography>;
@@ -43,7 +57,15 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                         <Typography variant="body2" color="text.secondary">
                             Enhance your service by adding additional offerings
                         </Typography>
-                        {/* Placeholder for additional offerings list if any */}
+                        {specialist.serviceOfferings && specialist.serviceOfferings.length > 0 && (
+                            <Box sx={{ mt: 2 }}>
+                                {specialist.serviceOfferings.map((offering, index) => (
+                                    <Typography key={index} variant="body2">
+                                        • {offering.serviceOfferingsMasterList.name}
+                                    </Typography>
+                                ))}
+                            </Box>
+                        )}
                     </Box>
 
                     <Divider sx={{ my: 4 }} />
@@ -69,19 +91,21 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                             </Button>
                             <Button
                                 variant="contained"
+                                disabled={!specialist.isDraft || isPublishing}
                                 sx={{
                                     bgcolor: '#0f2c59', // Brighter blue
                                     textTransform: 'none',
                                     minWidth: 100
                                 }}
+                                onClick={handlePublish}
                             >
-                                Publish
+                                {isPublishing ? 'Publishing...' : specialist.isDraft ? 'Publish' : 'Published'}
                             </Button>
                         </Box>
 
                         <PricingCard
-                            basePrice={specialist.basePrice || specialist.price}
-                            currency={specialist.currency}
+                            basePrice={specialist.finalPrice || specialist.basePrice}
+                            currency="MYR"
                         />
                     </Box>
                 </Grid>

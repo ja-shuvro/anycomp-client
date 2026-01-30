@@ -6,25 +6,32 @@ import { Plus, Download, Search } from 'lucide-react';
 import Link from 'next/link';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setFilterStatus, setSearchQuery } from '@/store/slices/specialistsSlice';
+import { setFilters, setSearchQuery } from '@/store/slices/specialistsSlice';
 import { useSpecialists } from '@/lib/queries/specialists';
 import SpecialistTable from '@/components/specialists/SpecialistTable';
 
 export default function SpecialistsPage() {
     const dispatch = useAppDispatch();
     const [page, setPage] = useState(1);
-    const { status, search } = useAppSelector((state) => state.specialists);
-    // Reset page when search or status changes
+    const filters = useAppSelector((state) => state.specialists);
+
+    // Reset page when filters change
     useEffect(() => {
         setPage(1);
-    }, [status, search]);
+    }, [filters.search, filters.isDraft]);
 
-    const { data, isLoading } = useSpecialists(status, search, page);
+    const { data, isLoading } = useSpecialists({ ...filters, page, limit: 10 });
     const specialists = data?.items || [];
     const pagination = data?.pagination;
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: 'All' | 'Drafts' | 'Published') => {
-        dispatch(setFilterStatus(newValue));
+    const handleTabChange = (event: React.SyntheticEvent, newValue: 'all' | 'drafts' | 'published') => {
+        if (newValue === 'all') {
+            dispatch(setFilters({ isDraft: undefined }));
+        } else if (newValue === 'drafts') {
+            dispatch(setFilters({ isDraft: true }));
+        } else {
+            dispatch(setFilters({ isDraft: false }));
+        }
     };
 
     return (
@@ -36,7 +43,7 @@ export default function SpecialistsPage() {
 
                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                     <Tabs
-                        value={status}
+                        value={filters.isDraft === undefined ? 'all' : filters.isDraft ? 'drafts' : 'published'}
                         onChange={handleTabChange}
                         aria-label="specialist tabs"
                         sx={{
@@ -48,9 +55,9 @@ export default function SpecialistsPage() {
                             }
                         }}
                     >
-                        <Tab label="All" value="All" />
-                        <Tab label="Drafts" value="Drafts" />
-                        <Tab label="Published" value="Published" />
+                        <Tab label="All" value="all" />
+                        <Tab label="Drafts" value="drafts" />
+                        <Tab label="Published" value="published" />
                     </Tabs>
                 </Box>
 
@@ -59,7 +66,7 @@ export default function SpecialistsPage() {
                         placeholder="Search Services"
                         size="small"
                         variant="outlined"
-                        value={search}
+                        value={filters.search || ''}
                         onChange={(e) => dispatch(setSearchQuery(e.target.value))}
                         sx={{
                             width: 300,

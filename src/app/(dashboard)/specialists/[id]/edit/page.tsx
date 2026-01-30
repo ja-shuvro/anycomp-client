@@ -1,49 +1,54 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import { use } from 'react';
+import { Box, Typography, Button } from '@mui/material';
 import SpecialistForm from '@/components/specialists/SpecialistForm';
 import { useRouter } from 'next/navigation';
-import { Specialist } from '@/lib/types';
-
-// Mock Fetch for Edit
-const getMockSpecialist = (id: string): Specialist => ({
-    id,
-    title: 'Incorporation of a new company',
-    price: 2000,
-    currency: 'RM',
-    purchases: 20,
-    duration: '3 Days',
-    approvalStatus: 'Approved',
-    publishStatus: 'Published',
-});
+import { useOneSpecialist, useUpdateSpecialist } from '@/lib/queries/specialists';
+import { ChevronLeft } from 'lucide-react';
 
 export default function EditSpecialistPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
-    const resolvedParams = use(params);
-    const [initialData, setInitialData] = useState<Specialist | undefined>(undefined);
+    const { id } = use(params);
+    const { data: specialist, isLoading } = useOneSpecialist(id);
+    const { mutate: updateSpecialist, isPending } = useUpdateSpecialist();
 
-    useEffect(() => {
-        // Simulate fetching data
-        const data = getMockSpecialist(resolvedParams.id);
-        setInitialData(data);
-    }, [resolvedParams.id]);
-
-    const handleUpdate = async (data: any) => {
-        console.log('Updating Specialist:', data);
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        router.push('/specialists');
+    const handleUpdate = (data: any) => {
+        updateSpecialist(
+            { id, data },
+            {
+                onSuccess: () => {
+                    router.push(`/specialists/${id}`);
+                },
+                onError: (error) => {
+                    console.error('Failed to update specialist:', error);
+                    // Optionally show toast
+                }
+            }
+        );
     };
 
-    if (!initialData) return <Typography>Loading...</Typography>;
+    if (isLoading) return <Typography>Loading...</Typography>;
+    if (!specialist) return <Typography>Specialist not found</Typography>;
 
     return (
-        <Box>
+        <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+            <Button
+                startIcon={<ChevronLeft />}
+                onClick={() => router.back()}
+                sx={{ mb: 3, textTransform: 'none', color: 'text.secondary' }}
+            >
+                Back to Details
+            </Button>
+
             <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
                 Edit Service
             </Typography>
-            <SpecialistForm initialData={initialData} onSubmit={handleUpdate} />
+            <SpecialistForm
+                initialData={specialist}
+                onSubmit={handleUpdate}
+                isLoading={isPending}
+            />
         </Box>
     );
 }

@@ -1,21 +1,25 @@
-export type PurchaseStatus = 'Approved' | 'Under Review' | 'Rejected';
-export type PublishStatus = 'Published' | 'Not Published';
+export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 
 export interface Specialist {
     id: string;
     title: string;
+    slug: string;
     description: string;
-    slug?: string;
-    price: number; // mapped from basePrice in table? or should we align with backend? Let's keep price for now but add basePrice mapping
     basePrice: number;
-    currency: string;
-    purchases: number;
-    duration: string; // e.g., "3 Days"
+    platformFee: number;
+    finalPrice: number;
+    averageRating: number;
+    totalNumberOfRatings: number;
+    isDraft: boolean;
+    verificationStatus: VerificationStatus;
+    isVerified: boolean;
     durationDays: number;
-    approvalStatus: PurchaseStatus;
-    publishStatus: PublishStatus;
-    // Relationships
-    serviceOfferings?: ServiceOffering[];
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    serviceOfferings?: {
+        serviceOfferingsMasterList: ServiceOffering;
+    }[];
 }
 
 export interface CreateSpecialistData {
@@ -27,9 +31,24 @@ export interface CreateSpecialistData {
     serviceIds?: string[];
 }
 
-export interface SpecialistFilter {
-    status: 'All' | 'Drafts' | 'Published';
-    search: string;
+export interface UpdateSpecialistData {
+    title?: string;
+    description?: string;
+    basePrice?: number;
+    isDraft?: boolean;
+    verificationStatus?: VerificationStatus;
+}
+
+export interface SpecialistFilters {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: VerificationStatus;
+    isDraft?: boolean;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: 'price' | 'rating' | 'newest' | 'alphabetical';
+    sortOrder?: 'asc' | 'desc';
 }
 
 export interface PlatformFee {

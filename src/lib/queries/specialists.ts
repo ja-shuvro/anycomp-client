@@ -1,83 +1,85 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Specialist } from '@/lib/types';
-import api from '@/lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { CreateSpecialistData, UpdateSpecialistData, SpecialistFilters } from '@/lib/types';
+import { specialistService } from '@/lib/services/specialist.service';
 
-export const useSpecialists = (filterStatus: string, searchQuery: string, page: number = 1, limit: number = 10) => {
+/**
+ * Hook to fetch all specialists with filtering and pagination
+ */
+export const useSpecialists = (filters?: SpecialistFilters) => {
     return useQuery({
-        queryKey: ['specialists', filterStatus, searchQuery, page, limit],
-        queryFn: async () => {
-            const params = new URLSearchParams();
-            params.append('page', page.toString());
-            params.append('limit', limit.toString());
-
-            if (filterStatus !== 'All') {
-                params.append('status', filterStatus);
-            }
-            if (searchQuery) {
-                params.append('search', searchQuery);
-            }
-
-            const { data } = await api.get(`/specialists?${params.toString()}`);
-
-            // Map backend entity to frontend Specialist interface if needed
-            // Assuming backend returns keys like basePrice, durationDays etc.
-            // We might need to transform if the table expects 'duration' string and 'price'
-            const items = data.data.items.map((item: any) => ({
-                ...item,
-                price: item.basePrice || item.price,
-                duration: item.durationDays ? `${item.durationDays} Days` : item.duration,
-                currency: 'RM', // Hardcode for now as per design
-                approvalStatus: item.verificationStatus === 'verified' ? 'Approved' : item.verificationStatus === 'rejected' ? 'Rejected' : 'Under Review',
-                publishStatus: item.isDraft ? 'Not Published' : 'Published',
-            }));
-
-            return { ...data.data, items };
-        },
+        queryKey: ['specialists', filters],
+        queryFn: () => specialistService.getAll(filters),
     });
 };
 
+/**
+ * Hook to fetch a single specialist by ID
+ */
 export const useOneSpecialist = (id: string) => {
     return useQuery({
         queryKey: ['specialist', id],
-        queryFn: async () => {
-            const { data } = await api.get(`/specialists/${id}`);
-            const item = data.data;
-            return {
-                ...item,
-                price: item.basePrice,
-                duration: item.durationDays ? `${item.durationDays} Days` : item.duration,
-                currency: 'RM',
-                approvalStatus: item.verificationStatus === 'verified' ? 'Approved' : item.verificationStatus === 'rejected' ? 'Rejected' : 'Under Review',
-                publishStatus: item.isDraft ? 'Not Published' : 'Published',
-            };
-        },
+        queryFn: () => specialistService.getById(id),
         enabled: !!id,
     });
 };
 
+/**
+ * Hook to create a new specialist
+ */
 export const useCreateSpecialist = () => {
+    const queryClient = useQueryClient();
+
     return useMutation({
-        mutationFn: async (data: any) => {
-            // ensure numeric types
-            const payload = {
-                ...data,
-                basePrice: Number(data.basePrice),
-                durationDays: Number(data.durationDays),
-            };
-            return await api.post('/specialists', payload);
+        mutationFn: (data: CreateSpecialistData) => specialistService.create(data),
+        onSuccess: () => {
+            // Invalidate specialists list to refetch
+            queryClient.invalidateQueries({ queryKey: ['specialists'] });
         },
     });
 };
 
+/**
+ * Hook to update an existing specialist
+ */
 export const useUpdateSpecialist = () => {
+    const queryClient = useQueryClient();
+
     return useMutation({
-        mutationFn: async ({ id, data }: { id: string; data: any }) => {
-            const payload = {
-                ...data,
-                basePrice: Number(data.basePrice),
-                durationDays: Number(data.durationDays),
-            };
-            return await api.patch(`/specialists/${id}`, payload);
+        mutationFn: ({ id, data }: { id: string; data: UpdateSpecialistData }) =>
+            specialistService.update(id, data),
+        onSuccess: (_, variables) => {
+            // Invalidate both the list and the specific specialist
+            queryClient.invalidateQueries({ queryKey: ['specialists'] });
+            queryClient.invalidateQueries({ queryKey: ['specialist', variables.id] });
+        },
+    });
+};
+
+/**
+ * Hook to publish a specialist
+ */
+export const usePublishSpecialist = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => specialistService.publish(id),
+        onSuccess: (_, id) => {
+            queryClient.invalidateQueries({ queryKey: ['specialists'] });
+            queryClient.invalidateQueries({ queryKey: ['specialist', id] });
+        },
+    });
+};
+
+/**
+ * Hook to delete a specialist
+ */
+export const useDeleteSpecialist = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => specialistService.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['specialists'] });
         },
     });
 };
