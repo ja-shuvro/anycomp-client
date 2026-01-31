@@ -52,7 +52,7 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                     <Typography variant="h4" fontWeight={700} sx={{ mb: 4 }}>
                         {specialist.title}
                     </Typography>
-                    <ServiceGallery />
+                    <ServiceGallery specialistId={id} />
 
                     <Box sx={{ my: 4 }}>
                         <Typography variant="h6" fontWeight={700} gutterBottom>
