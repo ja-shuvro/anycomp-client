@@ -23,14 +23,15 @@ type SpecialistSchemaType = z.infer<typeof specialistSchema>;
 
 interface SpecialistFormProps {
     initialData?: CreateSpecialistData;
-    onSubmit: (data: SpecialistSchemaType) => void;
+    onSubmit: (data: SpecialistSchemaType, files: File[]) => void;
     isLoading?: boolean;
     isEdit?: boolean;
     specialistId?: string; // For loading existing images
     onFilesSelected?: (files: File[]) => void; // Callback for selected files
+    onCancel?: () => void;
 }
 
-export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdit, specialistId, onFilesSelected }: SpecialistFormProps) {
+export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdit, specialistId, onFilesSelected, onCancel }: SpecialistFormProps) {
     const router = useRouter();
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
@@ -72,7 +73,7 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
 
     return (
         <Paper elevation={0} sx={{ p: 4, borderRadius: 2, border: '1px solid #E0E0E0' }}>
-            <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Box component="form" onSubmit={handleSubmit((data) => onSubmit(data, selectedFiles))} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                 <Typography variant="h6" fontWeight={700}>
                     {isEdit ? 'Edit Specialist Details' : 'Specialist Details'}
                 </Typography>
@@ -177,7 +178,7 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 1 }}>
                     <Button
                         variant="outlined"
-                        onClick={() => router.back()}
+                        onClick={onCancel ? onCancel : () => router.back()}
                         disabled={isLoading}
                         sx={{ textTransform: 'none' }}
                     >

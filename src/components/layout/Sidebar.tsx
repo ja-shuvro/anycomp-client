@@ -15,11 +15,11 @@ import { Avatar, Box, Typography, List, ListItem, ListItemButton, ListItemIcon, 
 
 const MENU_ITEMS = [
     { text: 'Specialists', icon: Briefcase, href: '/specialists' },
-    { text: 'Clients', icon: Users, href: '/clients' },
-    { text: 'Service Orders', icon: FileText, href: '/orders' },
-    { text: 'eSignature', icon: FileText, href: '/esignature' },
-    { text: 'Messages', icon: MessageSquare, href: '/messages' },
-    { text: 'Invoices & Receipts', icon: Receipt, href: '/invoices' },
+    // { text: 'Clients', icon: Users, href: '/clients' },
+    // { text: 'Service Orders', icon: FileText, href: '/orders' },
+    // { text: 'eSignature', icon: FileText, href: '/esignature' },
+    // { text: 'Messages', icon: MessageSquare, href: '/messages' },
+    // { text: 'Invoices & Receipts', icon: Receipt, href: '/invoices' },
 ];
 
 const ADMIN_ITEMS = [

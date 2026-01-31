@@ -9,11 +9,29 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setFilters, setSearchQuery } from '@/store/slices/specialistsSlice';
 import { useSpecialists } from '@/lib/queries/specialists';
 import SpecialistTable from '@/components/specialists/SpecialistTable';
+import SpecialistDrawer from '@/components/specialists/SpecialistDrawer';
 
 export default function SpecialistsPage() {
     const dispatch = useAppDispatch();
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [selectedSpecialist, setSelectedSpecialist] = useState<any | null>(null);
     const [page, setPage] = useState(1);
     const filters = useAppSelector((state) => state.specialists);
+
+    const handleCreate = () => {
+        setSelectedSpecialist(null);
+        setDrawerOpen(true);
+    };
+
+    const handleEdit = (specialist: any) => {
+        setSelectedSpecialist(specialist);
+        setDrawerOpen(true);
+    };
+
+    const handleCloseDrawer = () => {
+        setDrawerOpen(false);
+        setSelectedSpecialist(null);
+    };
 
     // Reset page when filters change
     useEffect(() => {
@@ -79,8 +97,7 @@ export default function SpecialistsPage() {
                     <Box sx={{ display: 'flex', gap: 1 }}>
                         <Button
                             variant="contained"
-                            component={Link}
-                            href="/specialists/create"
+                            onClick={handleCreate}
                             startIcon={<Plus size={18} />}
                             sx={{
                                 textTransform: 'none',
@@ -113,8 +130,15 @@ export default function SpecialistsPage() {
                     isLoading={isLoading}
                     pagination={pagination}
                     onPageChange={setPage}
+                    onEdit={handleEdit}
                 />
             </Box>
+
+            <SpecialistDrawer
+                open={drawerOpen}
+                onClose={handleCloseDrawer}
+                specialist={selectedSpecialist}
+            />
         </Box>
     );
 }

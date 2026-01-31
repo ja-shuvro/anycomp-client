@@ -30,6 +30,7 @@ interface SpecialistTableProps {
     isLoading: boolean;
     pagination?: PaginationMeta;
     onPageChange?: (page: number) => void;
+    onEdit: (specialist: Specialist) => void;
 }
 
 const VerificationStatusChip = ({ status }: { status: VerificationStatus }) => {
@@ -80,16 +81,16 @@ const DraftStatusChip = ({ isDraft }: { isDraft: boolean }) => {
     );
 };
 
-export default function SpecialistTable({ data, isLoading, pagination, onPageChange }: SpecialistTableProps) {
+export default function SpecialistTable({ data, isLoading, pagination, onPageChange, onEdit }: SpecialistTableProps) {
     const router = useRouter();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [selectedSpecialist, setSelectedSpecialist] = useState<string | null>(null);
+    const [selectedSpecialist, setSelectedSpecialist] = useState<Specialist | null>(null);
     const { mutate: deleteSpecialist } = useDeleteSpecialist();
 
-    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, specialistId: string) => {
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, specialist: Specialist) => {
         event.stopPropagation();
         setAnchorEl(event.currentTarget);
-        setSelectedSpecialist(specialistId);
+        setSelectedSpecialist(specialist);
     };
 
     const handleMenuClose = () => {
@@ -99,14 +100,14 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
 
     const handleEdit = () => {
         if (selectedSpecialist) {
-            router.push(`/specialists/${selectedSpecialist}/edit`);
+            onEdit(selectedSpecialist);
         }
         handleMenuClose();
     };
 
     const handleDelete = () => {
         if (selectedSpecialist && confirm('Are you sure you want to delete this specialist?')) {
-            deleteSpecialist(selectedSpecialist, {
+            deleteSpecialist(selectedSpecialist.id, {
                 onSuccess: () => {
                     // Optionally show success toast
                 },
@@ -151,13 +152,13 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                                 }}
                             >
                                 <TableCell onClick={(e) => e.stopPropagation()}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }} onClick={() => onEdit(row)}>
                                         <Typography variant="body2" fontWeight={500}>
                                             {row.title}
                                         </Typography>
                                     </Box>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell onClick={() => onEdit(row)}>
                                     <Typography variant="body2" fontWeight={600}>
                                         RM {row.finalPrice ? row.finalPrice.toLocaleString() : row.basePrice.toLocaleString()}
                                     </Typography>
@@ -179,7 +180,7 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                                 <TableCell onClick={(e) => e.stopPropagation()}>
                                     <IconButton
                                         size="small"
-                                        onClick={(e) => handleMenuOpen(e, row.id)}
+                                        onClick={(e) => handleMenuOpen(e, row)}
                                     >
                                         <MoreVertical size={16} />
                                     </IconButton>
