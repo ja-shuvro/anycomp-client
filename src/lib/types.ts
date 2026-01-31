@@ -59,12 +59,40 @@ export interface PlatformFee {
     isActive: boolean;
 }
 
+export interface JunctionServiceOffering {
+    id: string;
+    specialists: string;
+    serviceOfferingsMasterListId: string;
+    specialist: Specialist;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface ServiceOffering {
     id: string;
-    name: string;
+    title: string;
     description: string;
-    basePrice: number;
-    isActive: boolean;
+    s3Key?: string | null;
+    bucketName?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    serviceOfferings?: JunctionServiceOffering[];
+}
+
+export interface CreateServiceOfferingRequest {
+    title: string;
+    description: string;
+    specialistId: string;
+    s3Key?: string;
+    bucketName?: string;
+}
+
+export interface UpdateServiceOfferingRequest {
+    title?: string;
+    description?: string;
+    s3Key?: string;
+    bucketName?: string;
+    specialistId?: string;
 }
 
 export enum UserRole {

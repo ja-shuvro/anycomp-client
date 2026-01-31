@@ -1,7 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
-import { Box, Typography, Button, Container, Divider, Grid } from '@mui/material';
+import { Box, Typography, Button, Container, Divider, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useOneSpecialist, usePublishSpecialist } from '@/lib/queries/specialists';
 import ServiceGallery from '@/components/specialists/ServiceGallery';
@@ -13,22 +13,37 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
     const router = useRouter();
     const { data: specialist, isLoading } = useOneSpecialist(id);
     const { mutate: publishSpecialist, isPending: isPublishing } = usePublishSpecialist();
+    const [errorDialog, setErrorDialog] = useState({ open: false, message: '' });
 
     const handlePublish = () => {
         publishSpecialist(id, {
             onSuccess: () => {
-                // Optionally show a success toast
-                console.log('Specialist published successfully');
+                setErrorDialog({ open: true, message: 'SUCCESS: Specialist published successfully!' });
             },
-            onError: (error) => {
+            onError: (error: any) => {
+                const errorMessage = error?.response?.data?.error?.message ||
+                    error?.message ||
+                    'Failed to publish specialist';
+                setErrorDialog({ open: true, message: errorMessage });
                 console.error('Failed to publish specialist:', error);
-                // Optionally show an error toast
             }
         });
     };
 
+    const handleCloseDialog = () => {
+        setErrorDialog({ open: false, message: '' });
+    };
+
+    const handleGoToEdit = () => {
+        handleCloseDialog();
+        router.push(`/specialists/${id}/edit`);
+    };
+
     if (isLoading) return <Typography>Loading...</Typography>;
     if (!specialist) return <Typography>Specialist not found</Typography>;
+
+    const isSuccess = errorDialog.message.startsWith('SUCCESS:');
+    const needsServices = errorDialog.message.includes('at least one service');
 
     return (
         <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -57,14 +72,18 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                         <Typography variant="body2" color="text.secondary">
                             Enhance your service by adding additional offerings
                         </Typography>
-                        {specialist.serviceOfferings && specialist.serviceOfferings.length > 0 && (
+                        {specialist.serviceOfferings && specialist.serviceOfferings.length > 0 ? (
                             <Box sx={{ mt: 2 }}>
                                 {specialist.serviceOfferings.map((offering, index) => (
                                     <Typography key={index} variant="body2">
-                                        • {offering.serviceOfferingsMasterList.name}
+                                        • {offering.serviceOfferingsMasterList.title}
                                     </Typography>
                                 ))}
                             </Box>
+                        ) : (
+                            <Alert severity="warning" sx={{ mt: 2 }}>
+                                No services added yet. Add at least one service to publish this specialist.
+                            </Alert>
                         )}
                     </Box>
 
@@ -110,6 +129,55 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                     </Box>
                 </Grid>
             </Grid>
+
+            {/* Error/Success Dialog */}
+            <Dialog
+                open={errorDialog.open}
+                onClose={handleCloseDialog}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{
+                    bgcolor: isSuccess ? '#4caf50' : '#f44336',
+                    color: 'white',
+                    fontWeight: 600
+                }}>
+                    {isSuccess ? '✓ Success' : '⚠ Publishing Failed'}
+                </DialogTitle>
+                <DialogContent sx={{ mt: 2 }}>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                        {errorDialog.message.replace('SUCCESS: ', '')}
+                    </Typography>
+
+                    {needsServices && (
+                        <Alert severity="info" sx={{ mt: 2 }}>
+                            <Typography variant="body2" fontWeight={600} gutterBottom>
+                                How to fix this:
+                            </Typography>
+                            <Typography variant="body2">
+                                1. Click "Go to Edit" below<br />
+                                2. Add at least one service offering<br />
+                                3. Save your changes<br />
+                                4. Return here and click Publish again
+                            </Typography>
+                        </Alert>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    {needsServices && (
+                        <Button
+                            variant="contained"
+                            onClick={handleGoToEdit}
+                            sx={{ mr: 1 }}
+                        >
+                            Go to Edit
+                        </Button>
+                    )}
+                    <Button onClick={handleCloseDialog} variant="outlined">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container >
     );
 }

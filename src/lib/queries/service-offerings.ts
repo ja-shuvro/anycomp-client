@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ServiceOffering } from '@/lib/types';
+import { ServiceOffering, CreateServiceOfferingRequest, UpdateServiceOfferingRequest } from '@/lib/types';
 import api from '@/lib/api';
 
 export const useServiceOfferings = (page: number = 1, limit: number = 10) => {
@@ -26,7 +26,7 @@ export const useServiceOffering = (id: string) => {
 export const useCreateServiceOffering = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (data: Omit<ServiceOffering, 'id'>) => {
+        mutationFn: async (data: CreateServiceOfferingRequest) => {
             const response = await api.post('/service-offerings', data);
             return response.data;
         },
@@ -39,7 +39,7 @@ export const useCreateServiceOffering = () => {
 export const useUpdateServiceOffering = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async ({ id, data }: { id: string; data: Partial<ServiceOffering> }) => {
+        mutationFn: async ({ id, data }: { id: string; data: UpdateServiceOfferingRequest }) => {
             const response = await api.patch(`/service-offerings/${id}`, data);
             return response.data;
         },

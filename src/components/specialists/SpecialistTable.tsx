@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
     Table,
     TableBody,
@@ -13,11 +14,16 @@ import {
     IconButton,
     Box,
     Typography,
+    Menu,
+    MenuItem,
+    ListItemIcon,
+    ListItemText,
 } from '@mui/material';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Specialist, VerificationStatus, PaginationMeta } from '@/lib/types';
 import Pagination from '@/components/common/Pagination';
 import { useRouter } from 'next/navigation';
+import { useDeleteSpecialist } from '@/lib/queries/specialists';
 
 interface SpecialistTableProps {
     data: Specialist[];
@@ -76,6 +82,42 @@ const DraftStatusChip = ({ isDraft }: { isDraft: boolean }) => {
 
 export default function SpecialistTable({ data, isLoading, pagination, onPageChange }: SpecialistTableProps) {
     const router = useRouter();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [selectedSpecialist, setSelectedSpecialist] = useState<string | null>(null);
+    const { mutate: deleteSpecialist } = useDeleteSpecialist();
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, specialistId: string) => {
+        event.stopPropagation();
+        setAnchorEl(event.currentTarget);
+        setSelectedSpecialist(specialistId);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setSelectedSpecialist(null);
+    };
+
+    const handleEdit = () => {
+        if (selectedSpecialist) {
+            router.push(`/specialists/${selectedSpecialist}/edit`);
+        }
+        handleMenuClose();
+    };
+
+    const handleDelete = () => {
+        if (selectedSpecialist && confirm('Are you sure you want to delete this specialist?')) {
+            deleteSpecialist(selectedSpecialist, {
+                onSuccess: () => {
+                    // Optionally show success toast
+                },
+                onError: (error) => {
+                    console.error('Failed to delete specialist:', error);
+                    // Optionally show error toast
+                }
+            });
+        }
+        handleMenuClose();
+    };
 
     if (isLoading) {
         return <Box sx={{ p: 4, textAlign: 'center' }}>Loading...</Box>;
@@ -145,7 +187,10 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                                     <DraftStatusChip isDraft={row.isDraft} />
                                 </TableCell>
                                 <TableCell onClick={(e) => e.stopPropagation()}>
-                                    <IconButton size="small">
+                                    <IconButton
+                                        size="small"
+                                        onClick={(e) => handleMenuOpen(e, row.id)}
+                                    >
                                         <MoreVertical size={16} />
                                     </IconButton>
                                 </TableCell>
@@ -154,6 +199,34 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            {/* Action Menu */}
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+            >
+                <MenuItem onClick={handleEdit}>
+                    <ListItemIcon>
+                        <Edit size={16} />
+                    </ListItemIcon>
+                    <ListItemText>Edit</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+                    <ListItemIcon>
+                        <Trash2 size={16} color="red" />
+                    </ListItemIcon>
+                    <ListItemText>Delete</ListItemText>
+                </MenuItem>
+            </Menu>
 
             {onPageChange && pagination && (
                 <Pagination
