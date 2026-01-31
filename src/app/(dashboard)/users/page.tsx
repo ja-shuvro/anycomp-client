@@ -18,13 +18,8 @@ import { Plus, Shield, User, Briefcase } from 'lucide-react';
 import { UserRole } from '@/lib/types';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import UserDrawer from '@/components/admin/UserDrawer';
-
-// Mock data - you'll need to create API endpoints for user management
-const mockUsers = [
-    { id: '1', email: 'admin@example.com', role: UserRole.ADMIN, createdAt: '2024-01-15' },
-    { id: '2', email: 'specialist@example.com', role: UserRole.SPECIALIST, createdAt: '2024-01-16' },
-    { id: '3', email: 'client@example.com', role: UserRole.CLIENT, createdAt: '2024-01-17' },
-];
+import { useUsers } from '@/lib/queries/users';
+import { useQueryClient } from '@tanstack/react-query';
 
 const getRoleIcon = (role: UserRole) => {
     switch (role) {
@@ -50,13 +45,17 @@ const getRoleColor = (role: UserRole) => {
 
 export default function UsersPage() {
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [users, setUsers] = useState(mockUsers);
+    const { data: users, isLoading } = useUsers();
+    const queryClient = useQueryClient();
 
     const handleUserCreated = () => {
-        // In real implementation, refresh the user list from API
-        console.log('User created successfully');
-        // You would call something like: mutate() or refetch() here
+        // Refresh the user list after creation
+        queryClient.invalidateQueries({ queryKey: ['users'] });
     };
+
+    if (isLoading) {
+        return <Typography>Loading...</Typography>;
+    }
 
     return (
         <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
@@ -96,7 +95,7 @@ export default function UsersPage() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {users.map((user) => (
+                            {users?.items?.map((user) => (
                                 <TableRow key={user.id} hover>
                                     <TableCell>
                                         <Typography variant="body2" fontWeight={500}>
@@ -114,7 +113,7 @@ export default function UsersPage() {
                                     </TableCell>
                                     <TableCell>
                                         <Typography variant="body2" color="text.secondary">
-                                            {new Date(user.createdAt).toLocaleDateString()}
+                                            {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
