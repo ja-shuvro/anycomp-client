@@ -3,26 +3,28 @@
 import { useState } from 'react';
 import { Box, Typography, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { Plus, Edit, Trash2, MoreVertical } from 'lucide-react';
-import Link from 'next/link';
-import { useServiceOfferings } from '@/lib/queries/service-offerings';
+import { useServiceOfferings, useDeleteServiceOffering } from '@/lib/queries/service-offerings';
 import { ServiceOffering } from '@/lib/types';
 import Pagination from '@/components/common/Pagination';
-import { useRouter } from 'next/navigation';
+import ServiceOfferingDrawer from '@/components/admin/ServiceOfferingDrawer';
 
 export default function ServiceOfferingsPage() {
-    const router = useRouter();
     const [page, setPage] = useState(1);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [selectedOffering, setSelectedOffering] = useState<string | null>(null);
+    const [selectedOffering, setSelectedOffering] = useState<ServiceOffering | null>(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [editingOffering, setEditingOffering] = useState<ServiceOffering | null>(null);
+
     const { data, isLoading } = useServiceOfferings(page);
+    const { mutate: deleteOffering } = useDeleteServiceOffering();
 
     const offerings = data?.items || [];
     const pagination = data?.pagination;
 
-    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, offeringId: string) => {
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, offering: ServiceOffering) => {
         event.stopPropagation();
         setAnchorEl(event.currentTarget);
-        setSelectedOffering(offeringId);
+        setSelectedOffering(offering);
     };
 
     const handleMenuClose = () => {
@@ -30,19 +32,29 @@ export default function ServiceOfferingsPage() {
         setSelectedOffering(null);
     };
 
+    const handleCreate = () => {
+        setEditingOffering(null);
+        setDrawerOpen(true);
+    };
+
     const handleEdit = () => {
         if (selectedOffering) {
-            router.push(`/service-offerings/${selectedOffering}/edit`);
+            setEditingOffering(selectedOffering);
+            setDrawerOpen(true);
         }
         handleMenuClose();
     };
 
     const handleDelete = () => {
         if (selectedOffering && confirm('Are you sure you want to delete this service offering?')) {
-            // TODO: Implement delete mutation
-            console.log('Delete offering:', selectedOffering);
+            deleteOffering(selectedOffering.id);
         }
         handleMenuClose();
+    };
+
+    const handleDrawerClose = () => {
+        setDrawerOpen(false);
+        setEditingOffering(null);
     };
 
     if (isLoading) return <Typography>Loading...</Typography>;
@@ -53,8 +65,7 @@ export default function ServiceOfferingsPage() {
                 <Typography variant="h5" fontWeight={700}>Service Offerings</Typography>
                 <Button
                     variant="contained"
-                    component={Link}
-                    href="/service-offerings/create"
+                    onClick={handleCreate}
                     startIcon={<Plus size={18} />}
                     sx={{ bgcolor: '#0f2c59', textTransform: 'none' }}
                 >
@@ -111,7 +122,7 @@ export default function ServiceOfferingsPage() {
                                 <TableCell onClick={(e) => e.stopPropagation()}>
                                     <IconButton
                                         size="small"
-                                        onClick={(e) => handleMenuOpen(e, offering.id)}
+                                        onClick={(e) => handleMenuOpen(e, offering)}
                                     >
                                         <MoreVertical size={16} />
                                     </IconButton>
@@ -154,6 +165,13 @@ export default function ServiceOfferingsPage() {
                     <ListItemText>Delete</ListItemText>
                 </MenuItem>
             </Menu>
+
+            {/* Drawer for Create/Edit */}
+            <ServiceOfferingDrawer
+                open={drawerOpen}
+                onClose={handleDrawerClose}
+                offering={editingOffering}
+            />
 
             {pagination && (
                 <Pagination pagination={pagination} onPageChange={setPage} />

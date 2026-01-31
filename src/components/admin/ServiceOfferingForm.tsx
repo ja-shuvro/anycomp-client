@@ -21,15 +21,18 @@ type OfferingFormData = z.infer<typeof offeringSchema>;
 
 interface OfferingFormProps {
     initialData?: Partial<CreateServiceOfferingRequest>;
+    isEdit?: boolean;
+    isLoading?: boolean;
     onSubmit: (data: OfferingFormData) => void;
+    onCancel?: () => void;
 }
 
-export default function ServiceOfferingForm({ initialData, onSubmit }: OfferingFormProps) {
+export default function ServiceOfferingForm({ initialData, isEdit, isLoading, onSubmit, onCancel }: OfferingFormProps) {
     const router = useRouter();
     const [selectedSpecialist, setSelectedSpecialist] = useState<string | null>(initialData?.specialistId || null);
 
     // Fetch specialists for the autocomplete
-    const { data: specialistsData, isLoading } = useSpecialists({ page: 1, limit: 100 });
+    const { data: specialistsData, isLoading: isLoadingSpecialists } = useSpecialists({ page: 1, limit: 100 });
     const specialists = specialistsData?.items || [];
 
     const { register, handleSubmit, formState: { errors }, setValue } = useForm<OfferingFormData>({
@@ -69,7 +72,7 @@ export default function ServiceOfferingForm({ initialData, onSubmit }: OfferingF
                 <Autocomplete
                     options={specialists}
                     getOptionLabel={(option) => `${option.title} - $${option.basePrice}`}
-                    loading={isLoading}
+                    loading={isLoadingSpecialists}
                     value={specialists.find(s => s.id === selectedSpecialist) || null}
                     onChange={(_, newValue) => {
                         setSelectedSpecialist(newValue?.id || null);
@@ -85,7 +88,7 @@ export default function ServiceOfferingForm({ initialData, onSubmit }: OfferingF
                                 ...params.InputProps,
                                 endAdornment: (
                                     <>
-                                        {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                                        {isLoadingSpecialists ? <CircularProgress color="inherit" size={20} /> : null}
                                         {params.InputProps.endAdornment}
                                     </>
                                 ),
@@ -113,11 +116,20 @@ export default function ServiceOfferingForm({ initialData, onSubmit }: OfferingF
                 />
 
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2 }}>
-                    <Button variant="outlined" onClick={() => router.back()}>
+                    <Button
+                        variant="outlined"
+                        onClick={onCancel || (() => router.back())}
+                        disabled={isLoading}
+                    >
                         Cancel
                     </Button>
-                    <Button type="submit" variant="contained" sx={{ bgcolor: '#0f2c59' }}>
-                        Save Offering
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        sx={{ bgcolor: '#0f2c59' }}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? 'Saving...' : isEdit ? 'Update Offering' : 'Save Offering'}
                     </Button>
                 </Box>
             </Stack>

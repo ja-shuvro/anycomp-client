@@ -59,7 +59,7 @@ export default function ImagePreviewGrid({ images, onDelete, isDeleting, baseUrl
                             }}
                         >
                             <Image
-                                src={`${baseUrl}${media.publicUrl}`}
+                                src={media.publicUrl.startsWith('http') ? media.publicUrl : `${baseUrl}${media.publicUrl}`}
                                 alt={media.fileName}
                                 fill
                                 style={{ objectFit: 'cover' }}

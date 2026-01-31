@@ -49,3 +49,16 @@ export const useUpdateServiceOffering = () => {
         }
     });
 }
+
+export const useDeleteServiceOffering = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const response = await api.delete(`/service-offerings/${id}`);
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['service-offerings'] });
+        }
+    });
+};

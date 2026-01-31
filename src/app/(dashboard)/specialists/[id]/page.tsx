@@ -7,6 +7,7 @@ import { useOneSpecialist, usePublishSpecialist } from '@/lib/queries/specialist
 import ServiceGallery from '@/components/specialists/ServiceGallery';
 import PricingCard from '@/components/specialists/PricingCard';
 import ServiceProviderProfile from '@/components/specialists/ServiceProviderProfile';
+import SpecialistDrawer from '@/components/specialists/SpecialistDrawer';
 
 export default function SpecialistDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -14,6 +15,7 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
     const { data: specialist, isLoading } = useOneSpecialist(id);
     const { mutate: publishSpecialist, isPending: isPublishing } = usePublishSpecialist();
     const [errorDialog, setErrorDialog] = useState({ open: false, message: '' });
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const handlePublish = () => {
         publishSpecialist(id, {
@@ -36,7 +38,15 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
 
     const handleGoToEdit = () => {
         handleCloseDialog();
-        router.push(`/specialists/${id}/edit`);
+        setDrawerOpen(true);
+    };
+
+    const handleEdit = () => {
+        setDrawerOpen(true);
+    };
+
+    const handleDrawerClose = () => {
+        setDrawerOpen(false);
     };
 
     if (isLoading) return <Typography>Loading...</Typography>;
@@ -104,7 +114,7 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                                     textTransform: 'none',
                                     minWidth: 100
                                 }}
-                                onClick={() => router.push(`/specialists/${id}/edit`)}
+                                onClick={handleEdit}
                             >
                                 Edit
                             </Button>
@@ -180,6 +190,13 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Edit Drawer */}
+            <SpecialistDrawer
+                open={drawerOpen}
+                onClose={handleDrawerClose}
+                specialist={specialist}
+            />
         </Container >
     );
 }
