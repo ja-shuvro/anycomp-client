@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Drawer, Box, Typography, IconButton } from '@mui/material';
 import { X } from 'lucide-react';
 import SpecialistForm from './SpecialistForm';
@@ -17,44 +18,134 @@ interface SpecialistDrawerProps {
 export default function SpecialistDrawer({ open, onClose, specialist }: SpecialistDrawerProps) {
     const isEdit = !!specialist;
     const queryClient = useQueryClient();
+    const [isUploading, setIsUploading] = React.useState(false);
+    const [uploadingFiles, setUploadingFiles] = React.useState<Set<string>>(new Set());
+    const [failedFiles, setFailedFiles] = React.useState<Set<string>>(new Set());
+    const [draftSpecialistId, setDraftSpecialistId] = React.useState<string | null>(null);
     const { mutateAsync: createSpecialist, isPending: isCreating } = useCreateSpecialist();
     const { mutateAsync: updateSpecialist, isPending: isUpdating } = useUpdateSpecialist();
     const { mutateAsync: uploadMedia } = useUploadMedia();
 
+    // Create draft specialist when drawer opens in create mode
+    React.useEffect(() => {
+        const createDraft = async () => {
+            if (open && !isEdit && !draftSpecialistId) {
+                try {
+                    // Create a draft specialist with minimal data
+                    const draft = await createSpecialist({
+                        title: 'Draft Specialist',
+                        description: 'This is a draft specialist. Please update the details.',
+                        basePrice: 0,
+                        durationDays: 1,
+                        isDraft: true,
+                    });
+                    setDraftSpecialistId(draft.id);
+                } catch (error) {
+                    console.error('Failed to create draft specialist:', error);
+                }
+            }
+        };
+        createDraft();
+    }, [open, isEdit, draftSpecialistId, createSpecialist]);
+
+    // Reset draft ID when drawer closes
+    React.useEffect(() => {
+        if (!open) {
+            setDraftSpecialistId(null);
+            setUploadingFiles(new Set());
+            setFailedFiles(new Set());
+        }
+    }, [open]);
+
+    // Handle immediate upload for selected files
+    const handleFilesSelected = async (files: File[]) => {
+        const targetSpecialistId = isEdit ? specialist?.id : draftSpecialistId;
+
+        if (!targetSpecialistId) {
+            console.error('No specialist ID available for upload');
+            return;
+        }
+
+        setIsUploading(true);
+
+        // Track each file being uploaded and remove from failed if retrying
+        const newUploadingFiles = new Set(uploadingFiles);
+        files.forEach(file => {
+            newUploadingFiles.add(file.name);
+            // Remove from failed if retrying
+            setFailedFiles(prev => {
+                const updated = new Set(prev);
+                updated.delete(file.name);
+                return updated;
+            });
+        });
+        setUploadingFiles(newUploadingFiles);
+
+        try {
+            const existingMediaCount = 0; // You can get this from the form or query
+
+            // Upload files and track individual failures
+            await Promise.allSettled(
+                files.map((file, index) =>
+                    uploadMedia({
+                        specialistId: targetSpecialistId,
+                        file,
+                        displayOrder: existingMediaCount + index,
+                    }).then(() => {
+                        // Remove file from uploading set when done
+                        setUploadingFiles(prev => {
+                            const updated = new Set(prev);
+                            updated.delete(file.name);
+                            return updated;
+                        });
+                    }).catch((error) => {
+                        console.error(`Failed to upload ${file.name}:`, error);
+                        // Add to failed files
+                        setFailedFiles(prev => new Set(prev).add(file.name));
+                        // Remove from uploading
+                        setUploadingFiles(prev => {
+                            const updated = new Set(prev);
+                            updated.delete(file.name);
+                            return updated;
+                        });
+                        throw error;
+                    })
+                )
+            );
+
+            // Refresh the media query to show newly uploaded images
+            queryClient.invalidateQueries({ queryKey: ['specialist-media', targetSpecialistId] });
+        } catch (error) {
+            console.error('Some uploads failed:', error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    // Handle retry for a specific file
+    const handleRetry = async (file: File) => {
+        await handleFilesSelected([file]);
+    };
+
     const handleSubmit = async (data: any, files: File[]) => {
         try {
-            let specialistId = specialist?.id;
+            const targetId = isEdit ? specialist?.id : draftSpecialistId;
 
-            if (isEdit && specialist) {
-                await updateSpecialist({ id: specialist.id, data });
-            } else {
-                const newSpecialist = await createSpecialist(data);
-                specialistId = newSpecialist.id;
+            if (!targetId) {
+                console.error('No specialist ID available');
+                return;
             }
 
-            // Upload files if any
-            if (specialistId && files.length > 0) {
-                await Promise.all(
-                    files.map((file, index) =>
-                        uploadMedia({
-                            specialistId: specialistId!,
-                            file,
-                            displayOrder: index,
-                        })
-                    )
-                );
-            }
+            // Update the specialist (whether it's existing or the draft we created)
+            await updateSpecialist({ id: targetId, data: { ...data, isDraft: false } });
 
             // Invalidate queries to refresh data
             queryClient.invalidateQueries({ queryKey: ['specialists'] });
-            if (specialistId) {
-                queryClient.invalidateQueries({ queryKey: ['specialist-media', specialistId] });
-            }
+            queryClient.invalidateQueries({ queryKey: ['specialist-media', targetId] });
 
             onClose();
         } catch (error) {
             console.error('Failed to save specialist:', error);
-            // Error handling is managed by React Query / UI
         }
     };
 
@@ -86,10 +177,15 @@ export default function SpecialistDrawer({ open, onClose, specialist }: Speciali
                         slug: specialist.slug,
                     } : undefined}
                     isEdit={isEdit}
-                    specialistId={specialist?.id}
-                    isLoading={isCreating || isUpdating}
+                    specialistId={specialist?.id || draftSpecialistId || undefined}
+                    isLoading={isCreating || isUpdating || isUploading}
+                    isUploading={isUploading}
+                    uploadingFiles={uploadingFiles}
+                    failedFiles={failedFiles}
                     onSubmit={handleSubmit}
                     onCancel={onClose}
+                    onFilesSelected={handleFilesSelected}
+                    onRetry={handleRetry}
                 />
             </Box>
         </Drawer>

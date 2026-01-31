@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Typography, Paper, Button, IconButton } from '@mui/material';
-import { Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2, RefreshCw } from 'lucide-react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
@@ -9,9 +9,12 @@ interface ImageUploadZoneProps {
     images: File[];
     onFilesSelected: (files: File[]) => void;
     onRemove: (index: number) => void;
+    onRetry?: (file: File) => void;
     maxFiles?: number;
     minFiles?: number;
     disabled?: boolean;
+    uploadingFiles?: Set<string>;
+    failedFiles?: Set<string>;
 }
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
@@ -20,9 +23,12 @@ export default function ImageUploadZone({
     images,
     onFilesSelected,
     onRemove,
+    onRetry,
     maxFiles = 3,
     minFiles = 1,
-    disabled = false
+    disabled = false,
+    uploadingFiles = new Set(),
+    failedFiles = new Set()
 }: ImageUploadZoneProps) {
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -114,52 +120,82 @@ export default function ImageUploadZone({
                     <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                         Uploaded Images ({images.length}/{maxFiles})
                     </Typography>
-                    {images.map((file, index) => (
-                        <Paper
-                            key={index}
-                            elevation={0}
-                            sx={{
-                                border: '1px solid #E0E0E0',
-                                borderRadius: 2,
-                                p: 2,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 2,
-                                mb: 1,
-                            }}
-                        >
-                            <Box
-                                component="img"
-                                src={URL.createObjectURL(file)}
-                                alt={file.name}
+                    {images.map((file, index) => {
+                        const isUploading = uploadingFiles.has(file.name);
+                        const hasFailed = failedFiles.has(file.name);
+                        return (
+                            <Paper
+                                key={index}
+                                elevation={0}
                                 sx={{
-                                    width: 80,
-                                    height: 80,
-                                    objectFit: 'cover',
-                                    borderRadius: 1,
+                                    border: hasFailed ? '1px solid #f44336' : '1px solid #E0E0E0',
+                                    borderRadius: 2,
+                                    p: 2,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 2,
+                                    mb: 1,
+                                    opacity: isUploading ? 0.7 : 1,
+                                    position: 'relative',
+                                    bgcolor: hasFailed ? '#ffebee' : 'transparent',
                                 }}
-                            />
-                            <Box sx={{ flex: 1 }}>
-                                <Typography variant="body2" fontWeight={500}>
-                                    {file.name}
-                                </Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                    Size: {formatFileSize(file.size)}
-                                </Typography>
-                                <br />
-                                <Typography variant="caption" color="text.secondary">
-                                    File type: {file.type.split('/')[1].toUpperCase()}
-                                </Typography>
-                            </Box>
-                            <IconButton
-                                onClick={() => onRemove(index)}
-                                color="error"
-                                sx={{ alignSelf: 'flex-start' }}
                             >
-                                <Trash2 size={20} />
-                            </IconButton>
-                        </Paper>
-                    ))}
+                                <Box
+                                    component="img"
+                                    src={URL.createObjectURL(file)}
+                                    alt={file.name}
+                                    sx={{
+                                        width: 80,
+                                        height: 80,
+                                        objectFit: 'cover',
+                                        borderRadius: 1,
+                                    }}
+                                />
+                                <Box sx={{ flex: 1 }}>
+                                    <Typography variant="body2" fontWeight={500}>
+                                        {file.name}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Size: {formatFileSize(file.size)}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="caption" color="text.secondary">
+                                        File type: {file.type.split('/')[1].toUpperCase()}
+                                    </Typography>
+                                    {isUploading && (
+                                        <Typography variant="caption" color="primary" display="block" sx={{ mt: 0.5 }}>
+                                            ⏳ Uploading...
+                                        </Typography>
+                                    )}
+                                    {hasFailed && (
+                                        <Typography variant="caption" color="error" display="block" sx={{ mt: 0.5, fontWeight: 600 }}>
+                                            ❌ Upload failed
+                                        </Typography>
+                                    )}
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 1, alignSelf: 'flex-start' }}>
+                                    {hasFailed && onRetry && (
+                                        <IconButton
+                                            onClick={() => onRetry(file)}
+                                            color="primary"
+                                            size="small"
+                                            sx={{ bgcolor: '#e3f2fd' }}
+                                        >
+                                            <RefreshCw size={20} />
+                                        </IconButton>
+                                    )}
+                                    <IconButton
+                                        onClick={() => onRemove(index)}
+                                        color="error"
+                                        size="small"
+                                        disabled={isUploading}
+                                    >
+                                        <Trash2 size={20} />
+                                    </IconButton>
+                                </Box>
+                            </Paper>
+                        );
+                    })}
                 </Box>
             )}
         </Box>

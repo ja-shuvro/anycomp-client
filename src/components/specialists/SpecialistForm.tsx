@@ -25,13 +25,17 @@ interface SpecialistFormProps {
     initialData?: CreateSpecialistData;
     onSubmit: (data: SpecialistSchemaType, files: File[]) => void;
     isLoading?: boolean;
+    isUploading?: boolean;
+    uploadingFiles?: Set<string>;
+    failedFiles?: Set<string>;
     isEdit?: boolean;
     specialistId?: string; // For loading existing images
     onFilesSelected?: (files: File[]) => void; // Callback for selected files
+    onRetry?: (file: File) => void; // Callback for retrying failed uploads
     onCancel?: () => void;
 }
 
-export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdit, specialistId, onFilesSelected, onCancel }: SpecialistFormProps) {
+export default function SpecialistForm({ initialData, onSubmit, isLoading, isUploading, uploadingFiles, failedFiles, isEdit, specialistId, onFilesSelected, onRetry, onCancel }: SpecialistFormProps) {
     const router = useRouter();
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
@@ -127,10 +131,10 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                         InputProps={{
                             startAdornment: <InputAdornment position="start">RM</InputAdornment>,
                         }}
-                        sx={{ flex: 1 }}
+                    // sx={{ flex: 1 }}
                     />
                     {/* Empty Box for spacing alignment if needed, or let it stretch full width if single */}
-                    <Box sx={{ flex: 1, display: { xs: 'none', md: 'block' } }} />
+                    {/* <Box sx={{ flex: 1, display: { xs: 'none', md: 'block' } }} /> */}
                 </Box>
 
                 {/* Description */}
@@ -158,9 +162,12 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                         onRemove={(index) => {
                             setSelectedFiles(prev => prev.filter((_, i) => i !== index));
                         }}
+                        onRetry={onRetry}
                         maxFiles={3}
                         minFiles={1}
                         disabled={isLoading}
+                        uploadingFiles={uploadingFiles}
+                        failedFiles={failedFiles}
                     />
 
                     {/* Show existing images if editing */}
@@ -179,7 +186,7 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                     <Button
                         variant="outlined"
                         onClick={onCancel ? onCancel : () => router.back()}
-                        disabled={isLoading}
+                        disabled={isLoading || isUploading}
                         sx={{ textTransform: 'none' }}
                     >
                         Cancel
@@ -187,10 +194,10 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                     <Button
                         type="submit"
                         variant="contained"
-                        disabled={isLoading}
+                        disabled={isLoading || isUploading}
                         sx={{ bgcolor: '#0f2c59', textTransform: 'none' }}
                     >
-                        {isLoading ? 'Saving...' : (isEdit ? 'Update details' : 'Create Specialist')}
+                        {isUploading ? 'Uploading images...' : isLoading ? 'Saving...' : (isEdit ? 'Update details' : 'Create Specialist')}
                     </Button>
                 </Box>
             </Box>

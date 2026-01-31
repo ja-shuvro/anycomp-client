@@ -29,6 +29,7 @@ export interface CreateSpecialistData {
     durationDays: number;
     slug?: string;
     serviceIds?: string[];
+    isDraft?: boolean;
 }
 
 export interface UpdateSpecialistData {
