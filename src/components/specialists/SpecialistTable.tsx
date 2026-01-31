@@ -9,7 +9,6 @@ import {
     TableHead,
     TableRow,
     Paper,
-    Checkbox,
     Chip,
     IconButton,
     Box,
@@ -151,14 +150,14 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                                     '&:hover': { bgcolor: '#F5F5F5' }
                                 }}
                             >
-                                <TableCell onClick={(e) => e.stopPropagation()}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }} onClick={() => onEdit(row)}>
+                                <TableCell>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <Typography variant="body2" fontWeight={500}>
                                             {row.title}
                                         </Typography>
                                     </Box>
                                 </TableCell>
-                                <TableCell onClick={() => onEdit(row)}>
+                                <TableCell>
                                     <Typography variant="body2" fontWeight={600}>
                                         RM {row.finalPrice ? row.finalPrice.toLocaleString() : row.basePrice.toLocaleString()}
                                     </Typography>
