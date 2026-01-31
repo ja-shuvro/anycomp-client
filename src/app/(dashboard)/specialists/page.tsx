@@ -10,6 +10,7 @@ import { setFilters, setSearchQuery } from '@/store/slices/specialistsSlice';
 import { useSpecialists } from '@/lib/queries/specialists';
 import SpecialistTable from '@/components/specialists/SpecialistTable';
 import SpecialistDrawer from '@/components/specialists/SpecialistDrawer';
+import { useRole } from '@/hooks/useRole';
 
 export default function SpecialistsPage() {
     const dispatch = useAppDispatch();
@@ -17,6 +18,7 @@ export default function SpecialistsPage() {
     const [selectedSpecialist, setSelectedSpecialist] = useState<any | null>(null);
     const [page, setPage] = useState(1);
     const filters = useAppSelector((state) => state.specialists);
+    const { canAccessSpecialistFeatures } = useRole();
 
     const handleCreate = () => {
         setSelectedSpecialist(null);
@@ -95,20 +97,22 @@ export default function SpecialistsPage() {
                     />
 
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button
-                            variant="contained"
-                            onClick={handleCreate}
-                            startIcon={<Plus size={18} />}
-                            sx={{
-                                textTransform: 'none',
-                                bgcolor: '#0f2c59',
-                                borderRadius: 2,
-                                boxShadow: 'none',
-                                '&:hover': { bgcolor: '#0a1e3f' }
-                            }}
-                        >
-                            Create
-                        </Button>
+                        {canAccessSpecialistFeatures && (
+                            <Button
+                                variant="contained"
+                                onClick={handleCreate}
+                                startIcon={<Plus size={18} />}
+                                sx={{
+                                    textTransform: 'none',
+                                    bgcolor: '#0f2c59',
+                                    borderRadius: 2,
+                                    boxShadow: 'none',
+                                    '&:hover': { bgcolor: '#0a1e3f' }
+                                }}
+                            >
+                                Create
+                            </Button>
+                        )}
                         <Button
                             variant="contained"
                             startIcon={<Download size={18} />}

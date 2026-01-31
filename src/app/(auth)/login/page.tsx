@@ -154,7 +154,6 @@ export default function LoginPage() {
                             {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
                         </Button>
 
-
                     </Box>
                 </Box>
             </Box>
