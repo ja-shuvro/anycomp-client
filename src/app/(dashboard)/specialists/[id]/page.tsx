@@ -2,6 +2,7 @@
 
 import { use, useState } from 'react';
 import { Box, Typography, Button, Container, Divider, Grid, Dialog, DialogTitle, DialogContent, DialogActions, Alert } from '@mui/material';
+import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useOneSpecialist, usePublishSpecialist } from '@/lib/queries/specialists';
 import ServiceGallery from '@/components/specialists/ServiceGallery';
@@ -16,8 +17,14 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
     const { mutate: publishSpecialist, isPending: isPublishing } = usePublishSpecialist();
     const [errorDialog, setErrorDialog] = useState({ open: false, message: '' });
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
 
-    const handlePublish = () => {
+    const handlePublishClick = () => {
+        setPublishConfirmOpen(true);
+    };
+
+    const handleConfirmPublish = () => {
+        setPublishConfirmOpen(false);
         publishSpecialist(id, {
             onSuccess: () => {
                 setErrorDialog({ open: true, message: 'SUCCESS: Specialist published successfully!' });
@@ -30,6 +37,10 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                 console.error('Failed to publish specialist:', error);
             }
         });
+    };
+
+    const handleCancelPublish = () => {
+        setPublishConfirmOpen(false);
     };
 
     const handleCloseDialog = () => {
@@ -126,7 +137,7 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                                     textTransform: 'none',
                                     minWidth: 100
                                 }}
-                                onClick={handlePublish}
+                                onClick={handlePublishClick}
                             >
                                 {isPublishing ? 'Publishing...' : specialist.isDraft ? 'Publish' : 'Published'}
                             </Button>
@@ -187,6 +198,45 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                     )}
                     <Button onClick={handleCloseDialog} variant="outlined">
                         Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Publish Confirmation Dialog */}
+            <Dialog
+                open={publishConfirmOpen}
+                onClose={handleCancelPublish}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{ fontWeight: 600, fontSize: '1.5rem', pb: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <AlertCircle size={28} />
+                    Publish changes
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1" color="text.secondary">
+                        Do you want to publish these changes? It will appear in the marketplace listing
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 3 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={handleCancelPublish}
+                        sx={{ textTransform: 'none', minWidth: 140 }}
+                    >
+                        Continue Editing
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleConfirmPublish}
+                        disabled={isPublishing}
+                        sx={{
+                            bgcolor: '#0f2c59',
+                            textTransform: 'none',
+                            minWidth: 140
+                        }}
+                    >
+                        {isPublishing ? 'Publishing...' : 'Save changes'}
                     </Button>
                 </DialogActions>
             </Dialog>
