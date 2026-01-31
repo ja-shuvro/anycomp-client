@@ -129,9 +129,6 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                 <Table sx={{ minWidth: 650 }} aria-label="specialist table">
                     <TableHead>
                         <TableRow sx={{ bgcolor: '#FAFAFA' }}>
-                            <TableCell padding="checkbox">
-                                <Checkbox size="small" />
-                            </TableCell>
                             <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>SERVICE</TableCell>
                             <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>PRICE</TableCell>
                             <TableCell sx={{ fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 0.5 }}>RATING</TableCell>
@@ -153,15 +150,8 @@ export default function SpecialistTable({ data, isLoading, pagination, onPageCha
                                     '&:hover': { bgcolor: '#F5F5F5' }
                                 }}
                             >
-                                <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
-                                    <Checkbox size="small" />
-                                </TableCell>
-                                <TableCell component="th" scope="row">
+                                <TableCell onClick={(e) => e.stopPropagation()}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        {/* Placeholder Icon Square */}
-                                        <Box sx={{ width: 24, height: 24, bgcolor: '#0f2c59', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <Typography variant="caption" sx={{ color: 'white', fontSize: 10 }}>S</Typography>
-                                        </Box>
                                         <Typography variant="body2" fontWeight={500}>
                                             {row.title}
                                         </Typography>

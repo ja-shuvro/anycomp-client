@@ -133,3 +133,36 @@ export interface PaginatedResponse<T> {
     items: T[];
     pagination: PaginationMeta;
 }
+
+// Media types
+export enum MimeType {
+    IMAGE_JPEG = 'image/jpeg',
+    IMAGE_PNG = 'image/png',
+    IMAGE_WEBP = 'image/webp',
+    VIDEO_MP4 = 'video/mp4',
+    APPLICATION_PDF = 'application/pdf',
+}
+
+export enum MediaType {
+    IMAGE = 'image',
+    VIDEO = 'video',
+    DOCUMENT = 'document',
+}
+
+export interface Media {
+    id: string;
+    specialists: string;
+    fileName: string;
+    fileSize: number;
+    displayOrder: number;
+    mimeType: MimeType;
+    mediaType: MediaType;
+    uploadedAt: string;
+    publicUrl: string;
+    s3Key?: string;
+    bucketName?: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt?: string;
+}
+

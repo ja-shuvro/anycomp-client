@@ -123,7 +123,9 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                         </Box>
 
                         <PricingCard
-                            basePrice={specialist.finalPrice || specialist.basePrice}
+                            basePrice={specialist.basePrice}
+                            platformFee={specialist.platformFee}
+                            finalPrice={specialist.finalPrice}
                             currency="MYR"
                         />
                     </Box>

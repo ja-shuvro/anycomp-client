@@ -1,11 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Box, TextField, Button, Typography, Paper, InputAdornment } from '@mui/material';
-import { CreateSpecialistData } from '@/lib/types';
+import { CreateSpecialistData, Media } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { useSpecialistMedia, useDeleteMedia } from '@/lib/queries/media';
+import ImageUploadZone from './ImageUploadZone';
+import ImagePreviewGrid from './ImagePreviewGrid';
 
 const specialistSchema = z.object({
     title: z.string().min(2, 'Title is required').max(200),
@@ -22,10 +26,18 @@ interface SpecialistFormProps {
     onSubmit: (data: SpecialistSchemaType) => void;
     isLoading?: boolean;
     isEdit?: boolean;
+    specialistId?: string; // For loading existing images
+    onFilesSelected?: (files: File[]) => void; // Callback for selected files
 }
 
-export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdit }: SpecialistFormProps) {
+export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdit, specialistId, onFilesSelected }: SpecialistFormProps) {
     const router = useRouter();
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+
+    // Fetch existing images if editing
+    const { data: existingImages = [] } = useSpecialistMedia(specialistId || '');
+    const { mutate: deleteImage } = useDeleteMedia();
     const {
         register,
         handleSubmit,
@@ -41,6 +53,22 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
             slug: '',
         },
     });
+
+    const handleFilesSelected = (files: File[]) => {
+        setSelectedFiles(prev => [...prev, ...files]);
+        if (onFilesSelected) {
+            onFilesSelected(files);
+        }
+    };
+
+    const handleDeleteImage = async (id: string) => {
+        setDeletingImageId(id);
+        try {
+            await deleteImage(id);
+        } finally {
+            setDeletingImageId(null);
+        }
+    };
 
     return (
         <Paper elevation={0} sx={{ p: 4, borderRadius: 2, border: '1px solid #E0E0E0' }}>
@@ -62,7 +90,7 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                 </Box>
 
                 {/* Slug & Duration */}
-                <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
+                {/* <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
                     <TextField
                         fullWidth
                         label="Slug (Optional)"
@@ -84,7 +112,7 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                         }}
                         sx={{ flex: 1 }}
                     />
-                </Box>
+                </Box> */}
 
                 {/* Price */}
                 <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
@@ -116,6 +144,33 @@ export default function SpecialistForm({ initialData, onSubmit, isLoading, isEdi
                         helperText={errors.description?.message}
                         placeholder="Detailed description of the specialist service..."
                     />
+                </Box>
+
+                {/* Image Upload */}
+                <Box>
+                    <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                        Images
+                    </Typography>
+                    <ImageUploadZone
+                        images={selectedFiles}
+                        onFilesSelected={handleFilesSelected}
+                        onRemove={(index) => {
+                            setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+                        }}
+                        maxFiles={3}
+                        minFiles={1}
+                        disabled={isLoading}
+                    />
+
+                    {/* Show existing images if editing */}
+                    {specialistId && existingImages.length > 0 && (
+                        <ImagePreviewGrid
+                            images={existingImages}
+                            onDelete={handleDeleteImage}
+                            isDeleting={deletingImageId || undefined}
+                        />
+                    )}
+
                 </Box>
 
                 {/* Actions */}
