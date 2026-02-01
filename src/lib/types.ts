@@ -52,6 +52,8 @@ export interface FilterSpecialistParams {
     minRating?: number;
     sortBy?: 'price' | 'rating' | 'newest' | 'alphabetical';
     sortOrder?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
 }
 
 export interface PlatformFee {
@@ -174,4 +176,20 @@ export interface Media {
     createdAt: string;
     updatedAt: string;
     deletedAt?: string;
+}
+
+// Alias for FilterSpecialistParams
+export type SpecialistFilters = FilterSpecialistParams;
+
+
+// Auth types
+export interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
+export interface RegisterData {
+    email: string;
+    password: string;
+    role?: UserRole;
 }
