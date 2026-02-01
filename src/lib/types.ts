@@ -1,25 +1,27 @@
+import { ReactNode } from "react";
+
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 
 export interface Specialist {
     id: string;
     title: string;
-    slug: string;
     description: string;
     basePrice: number;
     platformFee: number;
     finalPrice: number;
-    averageRating: number;
-    totalNumberOfRatings: number;
+    rating: number;
+    durationDays: number;
+    slug: string;
     isDraft: boolean;
     verificationStatus: VerificationStatus;
     isVerified: boolean;
-    durationDays: number;
-    createdAt: string;
-    updatedAt: string;
-    userId: string;
-    serviceOfferings?: {
-        serviceOfferingsMasterList: ServiceOffering;
-    }[];
+    averageRating?: number;
+    totalNumberOfRatings?: number;
+    userId?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    serviceOfferings?: any[];
+    media?: any[];
 }
 
 export interface CreateSpecialistData {
@@ -36,28 +38,30 @@ export interface UpdateSpecialistData {
     title?: string;
     description?: string;
     basePrice?: number;
-    isDraft?: boolean;
-    verificationStatus?: VerificationStatus;
+    durationDays?: number;
+    slug?: string;
+    serviceIds?: string[];
 }
 
-export interface SpecialistFilters {
-    page?: number;
-    limit?: number;
+export interface FilterSpecialistParams {
     search?: string;
     status?: VerificationStatus;
     isDraft?: boolean;
     minPrice?: number;
     maxPrice?: number;
+    minRating?: number;
     sortBy?: 'price' | 'rating' | 'newest' | 'alphabetical';
     sortOrder?: 'asc' | 'desc';
 }
 
 export interface PlatformFee {
     id: string;
-    tierName: string;
-    percentage: number;
-    fixedAmount: number;
-    isActive: boolean;
+    tierName: 'basic' | 'standard' | 'premium' | 'enterprise';
+    minValue: number;
+    maxValue: number;
+    platformFeePercentage: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface JunctionServiceOffering {
@@ -106,28 +110,33 @@ export interface User {
     id: string;
     email: string;
     role: UserRole;
-    createdAt?: string;
-    updatedAt?: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
-export interface LoginCredentials {
+export interface AuthResponse {
+    accessToken: string;
+    user: User;
+}
+
+export interface LoginRequest {
     email: string;
     password: string;
 }
 
-export interface RegisterData {
+export interface RegisterRequest {
     email: string;
     password: string;
-    role?: UserRole;
+    role: UserRole;
 }
 
 export interface PaginationMeta {
     currentPage: number;
     totalPages: number;
+    pageSize: number;
     totalItems: number;
-    itemsPerPage: number;
     hasNextPage: boolean;
-    hasPrevPage: boolean;
+    hasPreviousPage: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -166,4 +175,3 @@ export interface Media {
     updatedAt: string;
     deletedAt?: string;
 }
-

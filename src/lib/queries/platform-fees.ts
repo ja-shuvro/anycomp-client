@@ -49,3 +49,15 @@ export const useUpdatePlatformFee = () => {
         }
     });
 };
+
+export const useDeletePlatformFee = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            await api.delete(`/platform-fees/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['platform-fees'] });
+        }
+    });
+};

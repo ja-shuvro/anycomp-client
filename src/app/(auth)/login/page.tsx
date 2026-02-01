@@ -30,11 +30,7 @@ export default function LoginPage() {
     // Redirect if logged in
     useEffect(() => {
         if (isAuthenticated && user) {
-            if (user.role === UserRole.ADMIN) {
-                router.push('/specialists'); // or /dashboard
-            } else {
-                router.push('/dashboard'); // client dashboard
-            }
+            router.push('/specialists');
         }
     }, [isAuthenticated, user, router]);
 
