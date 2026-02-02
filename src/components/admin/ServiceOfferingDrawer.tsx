@@ -20,8 +20,14 @@ export default function ServiceOfferingDrawer({ open, onClose, offering }: Servi
     const { mutateAsync: createOffering, isPending: isCreating } = useCreateServiceOffering();
     const { mutateAsync: updateOffering, isPending: isUpdating } = useUpdateServiceOffering();
 
-    const handleSubmit = async (data: any) => {
+    const handleSubmit = async (formData: any) => {
         try {
+            const data = {
+                ...formData,
+                specialistId: formData.specialistIds?.[0] || formData.specialistId,
+            };
+            delete data.specialistIds;
+
             if (isEdit && offering?.id) {
                 // Update existing offering
                 await updateOffering({ id: offering.id, data });

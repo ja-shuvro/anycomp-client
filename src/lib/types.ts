@@ -79,6 +79,7 @@ export interface ServiceOffering {
     id: string;
     title: string;
     description: string;
+    specialistId?: string;
     s3Key?: string | null;
     bucketName?: string | null;
     createdAt: string;
