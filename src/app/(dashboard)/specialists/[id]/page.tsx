@@ -211,11 +211,11 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
             >
                 <DialogTitle sx={{ fontWeight: 600, fontSize: '1.5rem', pb: 1, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <AlertCircle size={28} />
-                    Publish changes
+                    Publish
                 </DialogTitle>
                 <DialogContent>
                     <Typography variant="body1" color="text.secondary">
-                        Do you want to publish these changes? It will appear in the marketplace listing
+                        Do you want to publish this specialist? It will appear in the marketplace listing
                     </Typography>
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 3 }}>
@@ -224,7 +224,7 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                         onClick={handleCancelPublish}
                         sx={{ textTransform: 'none', minWidth: 140 }}
                     >
-                        Continue Editing
+                        Cancel
                     </Button>
                     <Button
                         variant="contained"
@@ -236,7 +236,7 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
                             minWidth: 140
                         }}
                     >
-                        {isPublishing ? 'Publishing...' : 'Save changes'}
+                        {isPublishing ? 'Publishing...' : 'Publish'}
                     </Button>
                 </DialogActions>
             </Dialog>
