@@ -39,9 +39,9 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
     // Loading state
     if (isLoading) {
         return (
-            <Container maxWidth="xl" sx={{ py: 4 }}>
-                <Skeleton variant="text" width={300} height={20} sx={{ mb: 2 }} />
-                <Skeleton variant="text" width={400} height={48} sx={{ mb: 4 }} />
+            <Container maxWidth="xl" sx={{ pt: 8, pb: 6, px: { xs: 2, md: 4 } }}>
+                <Skeleton variant="text" width={300} height={20} sx={{ mb: 3 }} />
+                <Skeleton variant="text" width={400} height={48} sx={{ mb: 6 }} />
                 <Grid container spacing={6}>
                     <Grid size={{ xs: 12, md: 7 }}>
                         <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
@@ -76,7 +76,7 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
     }
 
     return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Container maxWidth="xl" sx={{ pt: 8, pb: 6, px: { xs: 2, md: 4 } }}>
             {/* Breadcrumb Navigation */}
             <Breadcrumbs
                 separator={<ChevronRight size={14} />}
@@ -108,46 +108,48 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
             <Grid container spacing={6}>
                 {/* Left Column - Gallery and Details */}
                 <Grid size={{ xs: 12, md: 7 }}>
-                    {/* Title and Status */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                        <Typography variant="h4" fontWeight={700}>
-                            {specialist.title}
-                        </Typography>
-                        {specialist.isVerified && (
-                            <Chip
-                                icon={<CheckCircle size={14} />}
-                                label="Verified"
-                                size="small"
-                                sx={{
-                                    bgcolor: '#E8F5E9',
-                                    color: '#2E7D32',
-                                    fontWeight: 600,
-                                    '& .MuiChip-icon': { color: '#2E7D32' }
-                                }}
-                            />
-                        )}
-                    </Box>
-
-                    {/* Rating and Duration */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
-                        {specialist.averageRating && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <Star size={16} fill="#FFB800" color="#FFB800" />
-                                <Typography variant="body2" fontWeight={600}>
-                                    {specialist.averageRating.toFixed(1)}
-                                </Typography>
-                                {specialist.totalNumberOfRatings && (
-                                    <Typography variant="body2" color="text.secondary">
-                                        ({specialist.totalNumberOfRatings} reviews)
-                                    </Typography>
-                                )}
-                            </Box>
-                        )}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <Clock size={16} color="#666" />
-                            <Typography variant="body2" color="text.secondary">
-                                {specialist.durationDays} day{specialist.durationDays !== 1 ? 's' : ''} delivery
+                    <Box sx={{ mb: 6 }}>
+                        {/* Title and Status */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 1.5 }}>
+                            <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.75rem', md: '2.5rem' } }}>
+                                {specialist.title}
                             </Typography>
+                            {specialist.isVerified && (
+                                <Chip
+                                    icon={<CheckCircle size={14} />}
+                                    label="Verified"
+                                    size="small"
+                                    sx={{
+                                        bgcolor: '#E8F5E9',
+                                        color: '#2E7D32',
+                                        fontWeight: 600,
+                                        '& .MuiChip-icon': { color: '#2E7D32' }
+                                    }}
+                                />
+                            )}
+                        </Box>
+
+                        {/* Rating and Duration */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                            {specialist.averageRating && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <Star size={16} fill="#FFB800" color="#FFB800" />
+                                    <Typography variant="body2" fontWeight={600}>
+                                        {Number(specialist.averageRating).toFixed(1)}
+                                    </Typography>
+                                    {specialist.totalNumberOfRatings && (
+                                        <Typography variant="body2" color="text.secondary">
+                                            ({specialist.totalNumberOfRatings} reviews)
+                                        </Typography>
+                                    )}
+                                </Box>
+                            )}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <Clock size={16} color="#666" />
+                                <Typography variant="body2" color="text.secondary">
+                                    {specialist.durationDays} day{specialist.durationDays !== 1 ? 's' : ''} delivery
+                                </Typography>
+                            </Box>
                         </Box>
                     </Box>
 

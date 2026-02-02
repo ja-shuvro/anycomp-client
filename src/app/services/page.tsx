@@ -15,7 +15,8 @@ import {
     Breadcrumbs,
     Link as MuiLink,
     Skeleton,
-    Chip
+    Chip,
+    Container
 } from '@mui/material';
 import { Home, ChevronRight, Star } from 'lucide-react';
 import { useSpecialists } from '@/lib/queries/specialists';
@@ -54,9 +55,9 @@ export default function ServicesPage() {
     // Loading skeleton
     if (isLoading) {
         return (
-            <Box>
+            <Container maxWidth="xl" sx={{ pt: 8, pb: 6, px: { xs: 2, md: 4 } }}>
                 {/* Header */}
-                <Box sx={{ mb: 4 }}>
+                <Box sx={{ mb: 6 }}>
                     <Skeleton variant="text" width={200} height={20} sx={{ mb: 1 }} />
                     <Skeleton variant="text" width={350} height={40} />
                     <Skeleton variant="text" width={280} height={24} />
@@ -84,16 +85,16 @@ export default function ServicesPage() {
                         </Grid>
                     ))}
                 </Grid>
-            </Box>
+            </Container>
         );
     }
 
     return (
-        <Box>
+        <Container maxWidth="xl" sx={{ pt: 8, pb: 6, px: { xs: 2, md: 4 } }}>
             {/* Breadcrumb Navigation */}
             <Breadcrumbs
                 separator={<ChevronRight size={14} />}
-                sx={{ mb: 2 }}
+                sx={{ mb: 3 }}
             >
                 <MuiLink
                     component={Link}
@@ -119,11 +120,11 @@ export default function ServicesPage() {
             </Breadcrumbs>
 
             {/* Header */}
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" fontWeight={700} gutterBottom sx={{ fontSize: { xs: '1.5rem', md: '2rem' } }}>
+            <Box sx={{ mb: 6 }}>
+                <Typography variant="h4" fontWeight={700} gutterBottom sx={{ fontSize: { xs: '1.75rem', md: '2.5rem' }, mb: 1 }}>
                     Register a New Company
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
                     Get Your Company Registered with a Trusted Specialist
                 </Typography>
             </Box>
@@ -141,7 +142,7 @@ export default function ServicesPage() {
                             borderRadius: 2
                         }}
                     >
-                        <MenuItem value="">Price ▾</MenuItem>
+                        <MenuItem value="">Price</MenuItem>
                         <MenuItem value="low">Under RM 1,000</MenuItem>
                         <MenuItem value="mid">RM 1,000 - RM 5,000</MenuItem>
                         <MenuItem value="high">Above RM 5,000</MenuItem>
@@ -159,7 +160,7 @@ export default function ServicesPage() {
                             borderRadius: 2
                         }}
                     >
-                        <MenuItem value="newest">Sort by ▾</MenuItem>
+                        <MenuItem value="newest">Sort by</MenuItem>
                         <MenuItem value="price-low">Price: Low to High</MenuItem>
                         <MenuItem value="price-high">Price: High to Low</MenuItem>
                         <MenuItem value="popular">Most Popular</MenuItem>
@@ -323,6 +324,6 @@ export default function ServicesPage() {
                     <Pagination pagination={pagination} onPageChange={setPage} />
                 </Box>
             )}
-        </Box>
+        </Container>
     );
 }

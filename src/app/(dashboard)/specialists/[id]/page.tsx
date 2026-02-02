@@ -27,7 +27,8 @@ export default function SpecialistDetailsPage({ params }: { params: Promise<{ id
         setPublishConfirmOpen(false);
         publishSpecialist(id, {
             onSuccess: () => {
-                setErrorDialog({ open: true, message: 'SUCCESS: Specialist published successfully!' });
+                // Redirect to services page after successful publish
+                router.push('/services');
             },
             onError: (error: any) => {
                 const errorMessage = error?.response?.data?.error?.message ||

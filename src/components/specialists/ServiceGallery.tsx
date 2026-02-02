@@ -38,10 +38,10 @@ export default function ServiceGallery({ specialistId }: ServiceGalleryProps) {
                 position: 'relative',
                 overflow: 'hidden'
             }}>
-                {mainImage ? (
+                {mainImage && mainImage.publicUrl ? (
                     <Image
                         src={mainImage.publicUrl}
-                        alt={mainImage.fileName}
+                        alt={mainImage.fileName || 'Service image'}
                         fill
                         style={{ objectFit: 'cover' }}
                         sizes="(max-width: 768px) 100vw, 60vw"
@@ -69,10 +69,10 @@ export default function ServiceGallery({ specialistId }: ServiceGalleryProps) {
                     alignItems: 'center',
                     justifyContent: 'center'
                 }}>
-                    {sideImages[0] ? (
+                    {sideImages[0] && sideImages[0].publicUrl ? (
                         <Image
                             src={sideImages[0].publicUrl}
-                            alt={sideImages[0].fileName}
+                            alt={sideImages[0].fileName || 'Side image 1'}
                             fill
                             style={{ objectFit: 'cover' }}
                             sizes="(max-width: 768px) 50vw, 30vw"
@@ -93,10 +93,10 @@ export default function ServiceGallery({ specialistId }: ServiceGalleryProps) {
                     alignItems: 'center',
                     justifyContent: 'center'
                 }}>
-                    {sideImages[1] ? (
+                    {sideImages[1] && sideImages[1].publicUrl ? (
                         <Image
                             src={sideImages[1].publicUrl}
-                            alt={sideImages[1].fileName}
+                            alt={sideImages[1].fileName || 'Side image 2'}
                             fill
                             style={{ objectFit: 'cover' }}
                             sizes="(max-width: 768px) 50vw, 30vw"
